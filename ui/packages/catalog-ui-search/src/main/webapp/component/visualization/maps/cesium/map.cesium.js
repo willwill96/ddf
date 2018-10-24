@@ -131,7 +131,7 @@ function determineIdFromPosition(position, map) {
 }
 
 function expandRectangle(rectangle) {
-  var scalingFactor = 0.25
+  var scalingFactor = 0.10
 
   var widthGap = Math.abs(rectangle.east) - Math.abs(rectangle.west)
   var heightGap = Math.abs(rectangle.north) - Math.abs(rectangle.south)
@@ -311,10 +311,36 @@ module.exports = function CesiumMap(
       map.scene.camera.moveEnd.addEventListener(callback)
     },
     doPanZoom: function(coords) {
-      const cartArray = coords.map(function(coord) {
-        return Cesium.Cartographic.fromDegrees(
-          coord[0],
-          coord[1],
+      if (Array.isArray(coords[0][0])) {
+        const rectangles = []
+        coords.forEach(function(polygon){
+          const cartArray = polygon.map(function(coord) {
+            return Cesium.Cartographic.fromDegrees(
+            coord[0],
+            coord[1],
+            map.camera._positionCartographic.height
+          )
+          })
+          const rectangle = Cesium.Rectangle.fromCartographicArray(cartArray)
+          rectangles.push(rectangle)
+        })
+        let rectangle = rectangles[0]
+        let currentArea = 0
+        rectangles.forEach(function(r){
+          if (Math.abs((r.east - r.west) * (r.south - r.north)) > currentArea) {
+            currentArea = Math.abs((r.east - r.west) * (r.south - r.north))
+            rectangle = r
+          }
+        })
+        this.panToRectangle(rectangle, {
+          duration: 2.0,
+          correction: 1.0,
+        })
+      } else {
+        const cartArray = coords.map(function(coord) {
+          return Cesium.Cartographic.fromDegrees(
+            coord[0],
+            coord[1],
           map.camera._positionCartographic.height
         )
       })
@@ -329,6 +355,7 @@ module.exports = function CesiumMap(
           duration: 2.0,
           correction: 1.0,
         })
+      }
       }
     },
     zoomToSelected: function() {

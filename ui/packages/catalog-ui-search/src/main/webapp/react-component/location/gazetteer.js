@@ -89,21 +89,14 @@ class Gazetteer extends React.Component {
   async geofeature(suggestion) {
     const [type, id] = suggestion.id.split(':')
     const res = await window.fetch(
-      `https://nominatim.openstreetmap.org/reverse?format=json&osm_type=${type}&osm_id=${id}`
+      `https://nominatim.openstreetmap.org/reverse?format=json&osm_type=${type}&osm_id=${id}&polygon_geojson=1`
     )
     const data = await res.json()
     return {
       type: 'Feature',
       geometry: {
-        type: 'Polygon',
-        coordinates: [
-          [
-            [data.boundingbox[2], data.boundingbox[0]],
-            [data.boundingbox[3], data.boundingbox[0]],
-            [data.boundingbox[2], data.boundingbox[1]],
-            [data.boundingbox[3], data.boundingbox[1]],
-          ],
-        ],
+        type: 'MultiPolygon',
+        coordinates: data.geojson.coordinates,
       },
       properties: {},
       id: data.display_name,
