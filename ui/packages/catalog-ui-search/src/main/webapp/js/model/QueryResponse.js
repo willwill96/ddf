@@ -191,7 +191,7 @@ module.exports = Backbone.AssociatedModel.extend({
       response.responseJSON
         ? response.responseJSON.message
         : response.statusText,
-      dataJSON.src
+      dataJSON.src[0]
     )
   },
   handleSync: function(resultModel, response, sent) {
@@ -200,7 +200,7 @@ module.exports = Backbone.AssociatedModel.extend({
       var dataJSON = JSON.parse(sent.data)
       this.updateMessages(
         response.status.messages,
-        dataJSON.src,
+        dataJSON.src[0],
         response.status
       )
     }
@@ -238,7 +238,7 @@ module.exports = Backbone.AssociatedModel.extend({
             thumbnailAction.url
           )
         }
-        result.src = resp.status.id // store the name of the source that this result came from
+        result.src = resp.status.id.substring(1, resp.status.id.indexOf(']')) // store the name of the source that this result came from
       })
 
       if (this.allowAutoMerge()) {

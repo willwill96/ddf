@@ -64,7 +64,8 @@ public class CqlRequestTest {
     cqlRequest.setNormalize(true);
     sorts = Collections.singletonList(new CqlRequest.Sort(SORT_PROPERTY, ASC_SORT_ORDER));
     cqlRequest.setSorts(sorts);
-    cqlRequest.setSrc("source");
+    String[] srcs = {"source"};
+    cqlRequest.setSrc(srcs);
     cqlRequest.setStart(1);
     cqlRequest.setTimeout(1000L);
     filterBuilder = mock(FilterBuilder.class);
@@ -77,7 +78,7 @@ public class CqlRequestTest {
     assertThat(cqlRequest.getId(), is("anId"));
     assertThat(cqlRequest.isNormalize(), is(true));
     assertThat(cqlRequest.getSorts(), is(sorts));
-    assertThat(cqlRequest.getSource(), is("source"));
+    assertThat(cqlRequest.getSources()[0], is("source"));
     assertThat(cqlRequest.getStart(), is(1));
     assertThat(cqlRequest.getTimeout(), is(1000L));
   }
@@ -112,7 +113,8 @@ public class CqlRequestTest {
   public void testCreateQueryWithCacheSource() {
     cqlRequest.setSorts(
         Collections.singletonList(new CqlRequest.Sort(SORT_PROPERTY, DESC_SORT_ORDER)));
-    cqlRequest.setSrc(CACHE_SOURCE);
+    String[] srcs = {CACHE_SOURCE};
+    cqlRequest.setSrc(srcs);
     QueryRequest queryRequest = cqlRequest.createQueryRequest(CACHE_SOURCE, filterBuilder);
     SortBy sortBy = queryRequest.getQuery().getSortBy();
     assertThat(sortBy.getPropertyName().getPropertyName(), is(SORT_PROPERTY));
@@ -149,14 +151,15 @@ public class CqlRequestTest {
   @Test
   public void testBlankLocalSource() {
     cqlRequest.createQueryRequest("", filterBuilder);
-    assertThat(cqlRequest.getSource(), is("source"));
+    assertThat(cqlRequest.getSources()[0], is("source"));
   }
 
   @Test
   public void testLocalSource() {
-    cqlRequest.setSrc(LOCAL_SOURCE);
+    String[] srcs = {LOCAL_SOURCE};
+    cqlRequest.setSrc(srcs);
     cqlRequest.createQueryRequest(LOCAL_SOURCE, filterBuilder);
-    assertThat(cqlRequest.getSource(), is(LOCAL_SOURCE));
+    assertThat(cqlRequest.getSources()[0], is(LOCAL_SOURCE));
   }
 
   private void assertDefaultSortBy(QueryRequest queryRequest) {

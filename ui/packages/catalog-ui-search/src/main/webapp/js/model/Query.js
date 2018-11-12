@@ -248,7 +248,7 @@ Query.Model = Backbone.AssociatedModel.extend({
     }
     var query = this
     this.currentSearches = sources.map(function(src) {
-      data.src = src
+      data.src = [src]
       data.start = query.getStartIndexForSource(src)
 
       // since the "cache" source will return all cached results, need to

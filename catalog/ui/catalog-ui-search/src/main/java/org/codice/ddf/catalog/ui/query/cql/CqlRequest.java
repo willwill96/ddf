@@ -26,9 +26,7 @@ import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.geotools.filter.text.cql2.CQLException;
@@ -51,7 +49,7 @@ public class CqlRequest {
 
   private String id;
 
-  private String src;
+  private String[] src;
 
   private long timeout = 300000L;
 
@@ -71,7 +69,7 @@ public class CqlRequest {
 
   private boolean excludeUnnecessaryAttributes = true;
 
-  public String getSrc() {
+  public String[] getSrc() {
     return src;
   }
 
@@ -91,7 +89,7 @@ public class CqlRequest {
     return batchId;
   }
 
-  public void setSrc(String src) {
+  public void setSrc(String[] src) {
     this.src = src;
   }
 
@@ -159,14 +157,14 @@ public class CqlRequest {
     Query query =
         new QueryImpl(createFilter(filterBuilder), start, count, sortBys.get(0), true, timeout);
 
-    String source = parseSrc(localSource);
+    parseSrcs(localSource);
 
     QueryRequest queryRequest;
-    if (CACHE_SOURCE.equals(source)) {
+    if (src == null || src.length == 0 || (src.length == 1 && CACHE_SOURCE.equals(src[0]))) {
       queryRequest = new QueryRequestImpl(query, true);
       queryRequest.getProperties().put("mode", CACHE_SOURCE);
     } else {
-      queryRequest = new QueryRequestImpl(query, Collections.singleton(source));
+      queryRequest = new QueryRequestImpl(query, Arrays.asList(src));
       queryRequest.getProperties().put("mode", "update");
     }
 
@@ -195,12 +193,15 @@ public class CqlRequest {
     return queryRequest;
   }
 
-  private String parseSrc(String localSource) {
-    if (StringUtils.equalsIgnoreCase(src, LOCAL_SOURCE) || StringUtils.isBlank(src)) {
-      src = localSource;
+  private void parseSrcs(String localSource) {
+    if (src == null) {
+      return;
     }
-
-    return src;
+    for (int i = 0; i < src.length; i++) {
+      if (StringUtils.equalsIgnoreCase(src[i], LOCAL_SOURCE) || StringUtils.isBlank(src[i])) {
+        src[i] = localSource;
+      }
+    }
   }
 
   private Filter createFilter(FilterBuilder filterBuilder) {
@@ -239,7 +240,7 @@ public class CqlRequest {
     return sort;
   }
 
-  public String getSource() {
+  public String[] getSources() {
     return src;
   }
 

@@ -140,6 +140,7 @@ export default hot(module)(
             this.state.exportSize,
             this.props.selectionInterface
           ),
+          src: ["NDL-East", "GSR"],
         }
         const response = await exportDataAs(url, payload, 'application/json')
 
