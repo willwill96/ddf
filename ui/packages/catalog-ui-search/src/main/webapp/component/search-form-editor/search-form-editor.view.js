@@ -22,7 +22,7 @@ const Router = require('../router/router.js')
 const SearchFormCollection = require('../search-form/search-form-collection-instance')
 const SearchFormModel = require('../search-form/search-form.js')
 const SelectionInterface = require('../selection-interface/selection-interface.model.js')
-const QueryAdvanced = require('../query-advanced/query-advanced.view.js')
+const QuerySearchForm = require('../query-search-form/query-search-form.view.js')
 const QueryModel = require('../../js/model/Query.js')
 const QueryTitle = require('../query-title/query-title.view.js')
 const wreqr = require('../../js/wreqr.js')
@@ -118,7 +118,7 @@ module.exports = Marionette.LayoutView.extend({
   },
   showQueryForm(collection, id) {
     this.editor.show(
-      new QueryAdvanced({
+      new QuerySearchForm({
         model: this.model,
         isForm: true,
         isFormBuilder: true,

@@ -1,29 +1,32 @@
-@{customElementNamespace}query-editor {
+@{customElementNamespace}query-search-form {
   .customElement;
+
   overflow: hidden;
-  @{customElementNamespace}query-basic,
-  @{customElementNamespace}query-advanced,
-  @{customElementNamespace}query-search-form {
-    .editor-footer {
-      display: none;
-    }
-    .editor-properties {
-      padding: 0px;
-    }
+
+  form {
+    height: 100%;
+    overflow: auto;
   }
-  .editor-content {
+
+  .editor-properties {
     display: inline-block; // do not change back to block, fixes scrolling / repaint issues in IE10 / IE11
     width: 100%;
-    padding: @minimumSpacing @minimumSpacing;
-    .basic-location-specific,
-    .basic-type-specific {
+    max-height: ~'calc(100% - 2*@{minimumButtonSize})';
+    padding: @minimumSpacing @minimumSpacing 0px @minimumSpacing;
+
+    .filter-remove {
+      display: inline-block;
+    }
+    .filter-rearrange {
       display: none;
-      margin-left: 20px;
     }
   }
+
   .editor-footer {
+    margin-top: @largeSpacing;
     height: @minimumButtonSize;
     white-space: nowrap;
+
     > button {
       height: 100%;
       display: inline-block;
@@ -36,14 +39,11 @@
       display: none;
     }
     > .editor-save {
-      width: 30%;
-      display: none;
-    }
-    > .editor-saveRun {
-      width: 70%;
+      width: 50%;
       display: none;
     }
   }
+
   &.is-editing {
     .editor-footer {
       > .editor-edit {
@@ -55,9 +55,23 @@
       > .editor-save {
         display: inline-block;
       }
-      > .editor-saveRun {
-        display: inline-block;
-      }
     }
+  }
+
+
+  @{customElementNamespace}query-settings {
+    .editor-properties {
+      padding: 0px;
+      max-height: none;
+    }
+    .editor-footer {
+      display: none;
+    }
+  }
+}
+
+.is-small-screen,
+.is-mobile-screen {
+  @{customElementNamespace}query-search-form {
   }
 }

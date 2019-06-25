@@ -27,6 +27,7 @@ const BetweenTimeView = require('../between-time/between-time.view.js')
 const ValueModel = require('../value/value.js')
 const properties = require('../../js/properties.js')
 const Common = require('../../js/Common.js')
+
 import {
   geometryComparators,
   dateComparators,
@@ -254,6 +255,9 @@ the provided value."
     }
   },
   delete() {
+    if (typeof this.options.onDelete === 'function') {
+      this.options.onDelete(this.model.toJSON())
+    }
     this.model.destroy()
   },
   toggleLocationClass(toggle) {
@@ -307,6 +311,9 @@ the provided value."
       )
       const isValid = this.filterInput.currentView.isValid()
       this.model.set({ value, isValid }, { silent: true })
+      if (typeof this.options.onChange === 'function') {
+        this.options.onChange(this.model.toJSON())
+      }
     }
   },
   determineInput() {
@@ -315,7 +322,11 @@ the provided value."
     const currentComparator = this.model.get('comparator')
     value = this.transformValue(value, currentComparator)
     const type = this.model.get('type')
-    const propertyJSON = generatePropertyJSON(value, type, currentComparator)
+    const propertyJSON = generatePropertyJSON(
+      value,
+      type,
+      currentComparator
+    )
     if (this.options.suggester && propertyJSON.enum === undefined) {
       this.options.suggester(propertyJSON).then(suggestions => {
         if (this.filterInput === undefined) {
@@ -327,7 +338,12 @@ the provided value."
             label,
             value: label,
           }))
-          const ViewToUse = determineView(currentComparator)
+          let ViewToUse
+          if (typeof this.options.determineView === 'function') {
+            ViewToUse = this.options.determineView()
+          } else {
+            ViewToUse = determineView(currentComparator)
+          }
           const model = new PropertyModel(propertyJSON)
           this.listenTo(model, 'change:value', this.updateValueFromInput)
           this.filterInput.show(
@@ -339,7 +355,12 @@ the provided value."
         }
       })
     }
-    const ViewToUse = determineView(currentComparator)
+    let ViewToUse
+    if (typeof this.options.determineView === 'function') {
+      ViewToUse = this.options.determineView()
+    } else {
+      ViewToUse = determineView(currentComparator)
+    }
     const model = new PropertyModel(propertyJSON)
     this.listenTo(model, 'change:value', this.updateValueFromInput)
     this.filterInput.show(
