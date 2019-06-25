@@ -145,14 +145,7 @@ module.exports = Marionette.LayoutView.extend({
     return false
   },
   deserialize() {
-    if (this.propertyModel) {
-      const filter = this.propertyModel.get('value')
-      if (this.isFilterUndefinedOrNull(filter)) {
-        return
-      }
-    }
-
-    const filter = this.propertyModel.get('value')
+    const filter = this.propertyModel.toJSON()
     this.model.set(filterToLocationOldModel(filter))
 
     switch (filter.type) {

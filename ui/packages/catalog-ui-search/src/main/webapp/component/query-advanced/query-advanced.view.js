@@ -77,10 +77,7 @@ module.exports = Marionette.LayoutView.extend({
     queryAdvanced: '.query-advanced',
   },
   ui: {},
-  initialize() {
-    this.$el.toggleClass('is-form-builder', this.options.isFormBuilder === true)
-    this.$el.toggleClass('is-form', this.options.isForm === true)
-  },
+  initialize() {},
   onBeforeShow() {
     this.model = this.model._cloneOf
       ? store.getQueryById(this.model._cloneOf)
@@ -153,10 +150,6 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   edit() {
-    this.$el.toggleClass(
-      'is-empty',
-      this.model.get('comparator') === 'IS EMPTY'
-    )
     this.$el.addClass('is-editing')
     this.querySettings.currentView.turnOnEditing()
     this.queryAdvanced.currentView.turnOnEditing()

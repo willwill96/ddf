@@ -18,6 +18,7 @@ const Marionette = require('marionette')
 const template = require('./query-editor.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const QueryAdvanced = require('../query-advanced/query-advanced.view.js')
+const QuerySearchForm = require('../query-search-form/query-search-form.view.js')
 const QueryTitle = require('../query-title/query-title.view.js')
 const store = require('../../js/store.js')
 const announcement = require('../announcement/index.jsx')
@@ -112,7 +113,7 @@ module.exports = Marionette.LayoutView.extend({
   },
   showCustom() {
     this.queryContent.show(
-      new QueryAdvanced({
+      new QuerySearchForm({
         model: this.model,
         isForm: true,
         isFormBuilder: false,

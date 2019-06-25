@@ -27,7 +27,7 @@ const FilterBuilderModel = Backbone.Model.extend({
   type: 'filter-builder',
 })
 
-const FilterModel = Backbone.Model.extend({
+export const FilterModel = Backbone.Model.extend({
   defaults() {
     return {
       value: [''],
@@ -64,7 +64,7 @@ const cqlToComparator = Object.keys(comparatorToCQL).reduce((mapping, key) => {
   return mapping
 }, {})
 
-const transformFilter = filter => {
+export const transformFilter = filter => {
   const { type, property } = filter
 
   const value = CQLUtils.isGeoFilter(filter.type) ? filter : filter.value
