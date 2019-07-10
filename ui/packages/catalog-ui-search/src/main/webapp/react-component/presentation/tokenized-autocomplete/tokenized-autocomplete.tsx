@@ -97,9 +97,9 @@ class TokenizedAutoComplete extends React.Component<Props, State> {
     const onKeyDown = this.areSuggestions() ? undefined : this.keyDown
     return (
       <Root>
-        {this.state.value.map((val, i) => {
+        {this.state.value.map((val) => {
           return (
-            <Token onRemove={() => this.removeValue(val)} key={i} label={val} />
+            <Token onRemove={() => this.removeValue(val)} key={val} label={val} />
           )
         })}
         <InputWrapper innerRef={this.rootRef}>

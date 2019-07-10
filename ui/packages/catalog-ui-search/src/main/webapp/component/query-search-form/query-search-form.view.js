@@ -17,6 +17,7 @@ import * as React from 'react'
 import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
 import {
   deserialize,
+  serialize,
   FilterModel,
   transformFilter,
 } from '../filter-builder/filter-serialization'
@@ -81,7 +82,7 @@ const AutocompleteWrapper = Marionette.LayoutView.extend({
       <TokenizedAutocomplete
         onChange={value => this.model.set('value', value)}
         value={this.model.get('value')}
-        //       suggestions={["123", "456"]}
+               suggestions={["123", "456"]}
       />
     )
   },
@@ -147,8 +148,6 @@ class SearchForm extends React.Component {
                 : null
             if (isArray(filter.value)) {
               model.set('value', filter.value)
-            } else {
-              model.set('value', [filter.value])
             }
             return (
               <MarionetteRegionContainer
@@ -156,19 +155,19 @@ class SearchForm extends React.Component {
                 view={FilterView}
                 viewOptions={{
                   model: model,
-                  onChange: ({ value, type, comparator }) => {
+                  onChange: (model) => {
+                    const filter = serialize(model)
                     const filters = this.state.filters.slice()
-                    filters[i] = {
-                      value: value.length > 0 ? value : [''],
-                      type: comparatorToCQL()[comparator],
-                      property: type,
+
+                    if (filter.type !== filters[i].type || filter.property !== filters[i].property) {
+                      filter.value = ['']
+                    } else if (filter.type === 'ILIKE' || filter.type === 'LIKE') {
+                      filter.value = model.get('value')
+                    } else {
+                      filter.value = [filter.value]
                     }
-                    if (
-                      type !== this.state.filters[i].property ||
-                      filters[i].type !== this.state.filters[i].type
-                    ) {
-                      filters[i].value = ['']
-                    }
+
+                    filters[i] = filter
 
                     this.setState({ filters }, () =>
                       this.props.onChange(expand(this.state.filters))
@@ -178,9 +177,7 @@ class SearchForm extends React.Component {
                   editing: true,
                   determineView,
                   onDelete: () => {
-                    const index = i
-                    const filters = this.state.filters.slice()
-                    filters.splice(index, 1)
+                    const filters = this.state.filters.filter((_, index) => index !== i)
                     this.setState(
                       {
                         filters,

@@ -312,21 +312,23 @@ the provided value."
       const isValid = this.filterInput.currentView.isValid()
       this.model.set({ value, isValid }, { silent: true })
       if (typeof this.options.onChange === 'function') {
-        this.options.onChange(this.model.toJSON())
+        this.options.onChange(this.model)
       }
     }
   },
   determineInput() {
     this.updateValueFromInput()
-    let value = Common.duplicate(this.model.get('value'))
-    const currentComparator = this.model.get('comparator')
+    const { type, comparator: currentComparator, value: modelValue, ...rest } = this.model.toJSON()
+    let value = Common.duplicate(modelValue)
     value = this.transformValue(value, currentComparator)
-    const type = this.model.get('type')
-    const propertyJSON = generatePropertyJSON(
+    const propertyJSON = {
+      ...generatePropertyJSON(
       value,
       type,
       currentComparator
-    )
+      ),
+      ...rest
+    }
     if (this.options.suggester && propertyJSON.enum === undefined) {
       this.options.suggester(propertyJSON).then(suggestions => {
         if (this.filterInput === undefined) {
