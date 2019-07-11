@@ -36,6 +36,154 @@ import {
 } from './comparators'
 import * as React from 'react'
 import ExtensionPoints from '../../extension-points'
+import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
+import withListenTo from '../../react-component/container/backbone-container'
+
+const Filter = withListenTo(
+  class Filter extends React.Component {
+    filterComparatorModel
+    filterAttributeView
+    filterInput
+    constructor(props) {
+      super(props)
+      const state = props.model.toJSON()
+      if (props.includedAttributes && !props.includedAttributes(state.type)) {
+        state.type = !props.includedAttributes[0]
+      }
+
+      this.state = state
+      this.filterAttributeView = DropdownView.createSimpleDropdown({
+        list: this.getFilteredAttributeList(),
+        defaultSelection: [this.state.type],
+        hasFiltering: true,
+      })
+      this.filterComparatorModel = new DropdownModel({
+        value: this.state.comparator || 'CONTAINS',
+      })
+    }
+
+    componentDidMount() {
+      this.props.listenTo(this.props.model, 'change', () =>
+        this.setState(this.props.model.toJSON())
+      )
+      this.props.listenTo(
+        this.filterAttributeView.model,
+        'change:value',
+        this.handleAttributeUpdate
+      )
+    }
+
+    render() {
+      this.determineInput()
+      return (
+        <React.Fragment>
+          <div className="filter-rearrange">
+            <span className="cf cf-sort-grabber" />
+          </div>
+          <button
+            onClick={() => this.props.model.destroy()}
+            className="filter-remove is-negative"
+          >
+            <span className="fa fa-minus" />
+          </button>
+          <div
+            className="filter-attribute"
+            data-help="Property to compare against."
+          >
+            <MarionetteRegionContainer view={this.filterAttributeView} />
+          </div>
+          <div
+            className="filter-comparator"
+            data-help="How to compare the value for this property against
+the provided value."
+          >
+            <MarionetteRegionContainer
+              view={FilterComparatorDropdownView}
+              viewOptions={{
+                model: this.filterComparatorModel,
+                modelForComponent: this.props.model,
+              }}
+            />
+          </div>
+          <div
+            className="filter-input"
+            data-help="The value for the property to use during comparison."
+          >
+            <MarionetteRegionContainer view={this.filterInput} />
+          </div>
+          <ExtensionPoints.filterActions
+            model={this.props.model}
+            metacardDefinitions={this.props.metacardDefinitions}
+            options={this.props}
+          />
+        </React.Fragment>
+      )
+    }
+
+    handleAttributeUpdate = () => {
+      const previousAttributeType =
+        metacardDefinitions.metacardTypes[this.state.type].type
+      this.props.model.set(
+        'type',
+        this.filterAttributeView.model.get('value')[0]
+      )
+      const currentAttributeType =
+        metacardDefinitions.metacardTypes[this.state.type].type
+      if (currentAttributeType !== previousAttributeType) {
+        this.props.model.set('value', [''])
+      }
+    }
+
+    getFilteredAttributeList = () => {
+      return metacardDefinitions.sortedMetacardTypes
+        .filter(({ id }) => !properties.isHidden(id))
+        .filter(({ id }) => !metacardDefinitions.isHiddenType(id))
+        .filter(({ id }) =>
+          this.props.includedAttributes === undefined
+            ? true
+            : this.props.includedAttributes.includes(id)
+        )
+        .map(({ alias, id }) => ({
+          label: alias || id,
+          value: id,
+          description: (properties.attributeDescriptions || {})[id],
+        }))
+    }
+
+    determineInput = () => {
+      this.updateValueFromInput()
+      let value = Common.duplicate(this.state.value)
+      const currentComparator = this.state.comparator
+      value = transformValue(value, currentComparator)
+      const propertyJSON = generatePropertyJSON(
+        value,
+        this.state.type,
+        currentComparator
+      )
+      const ViewToUse = determineView(currentComparator)
+      const model = new PropertyModel(propertyJSON)
+      this.props.listenTo(model, 'change:value', this.updateValueFromInput)
+      this.filterInput = new ViewToUse({
+        model,
+      })
+                const property =
+      this.filterInput.model instanceof ValueModel
+        ? this.filterInput.model.get('property')
+        : this.filterInput.model
+    property.set('isEditing', true)
+    }
+
+    updateValueFromInput = () => {
+      if (this.filterInput) {
+        const value = Common.duplicate(
+          this.filterInput.model.getValue()
+        )
+        const isValid = this.filterInput.isValid()
+        this.props.model.set({ value, isValid }, { silent: true })
+      }
+    }
+  }
+)
 
 const generatePropertyJSON = (value, type, comparator) => {
   const propertyJSON = _.extend({}, metacardDefinitions.metacardTypes[type], {
@@ -70,6 +218,32 @@ const generatePropertyJSON = (value, type, comparator) => {
   }
 
   return propertyJSON
+}
+
+const transformValue = (value, comparator) => {
+  switch (comparator) {
+    case 'NEAR':
+      if (value[0].constructor !== Object) {
+        value[0] = {
+          value: value[0],
+          distance: 2,
+        }
+      }
+      break
+    case 'INTERSECTS':
+    case 'DWITHIN':
+      break
+    default:
+      if (value === null || value[0] === null) {
+        value = ['']
+        break
+      }
+      if (value[0].constructor === Object) {
+        value[0] = value[0].value
+      }
+      break
+  }
+  return value
 }
 
 const determineView = comparator => {
@@ -108,34 +282,7 @@ function comparatorToCQL() {
 
 module.exports = Marionette.LayoutView.extend({
   template() {
-    return (
-      <React.Fragment>
-        <div className="filter-rearrange">
-          <span className="cf cf-sort-grabber" />
-        </div>
-        <button className="filter-remove is-negative">
-          <span className="fa fa-minus" />
-        </button>
-        <div
-          className="filter-attribute"
-          data-help="Property to compare against."
-        />
-        <div
-          className="filter-comparator"
-          data-help="How to compare the value for this property against
-the provided value."
-        />
-        <div
-          className="filter-input"
-          data-help="The value for the property to use during comparison."
-        />
-        <ExtensionPoints.filterActions
-          model={this.model}
-          metacardDefinitions={metacardDefinitions}
-          options={this.options}
-        />
-      </React.Fragment>
-    )
+    return <Filter model={this.model} {...this.options} />
   },
   tagName: CustomElements.register('filter'),
   attributes() {
@@ -145,248 +292,21 @@ the provided value."
     'click > .filter-remove': 'delete',
   },
   modelEvents: {},
-  regions: {
-    filterRearrange: '.filter-rearrange',
-    filterAttribute: '.filter-attribute',
-    filterComparator: '.filter-comparator',
-    filterInput: '.filter-input',
-  },
-  initialize() {
-    this.listenTo(this.model, 'change:type', this.updateTypeDropdown)
-    this.listenTo(this.model, 'change:type', this.determineInput)
-    this.listenTo(this.model, 'change:value', this.determineInput)
-    this.listenTo(this.model, 'change:comparator', this.determineInput)
-  },
-  onBeforeShow() {
-    this.$el.toggleClass('is-sortable', this.options.isSortable || true)
-    const filteredAttributeList = metacardDefinitions.sortedMetacardTypes
-      .filter(({ id }) => !properties.isHidden(id))
-      .filter(({ id }) => !metacardDefinitions.isHiddenType(id))
-      .filter(
-        ({ id }) =>
-          this.options.includedAttributes === undefined
-            ? true
-            : this.options.includedAttributes.includes(id)
-      )
-      .map(({ alias, id }) => ({
-        label: alias || id,
-        value: id,
-        description: (properties.attributeDescriptions || {})[id],
-      }))
-
-    let defaultSelection = this.model.get('type') || 'anyText'
-    if (
-      this.options.includedAttributes &&
-      !this.options.includedAttributes.includes(defaultSelection)
-    ) {
-      defaultSelection = this.options.includedAttributes[0]
-    }
-    this.filterAttribute.show(
-      DropdownView.createSimpleDropdown({
-        list: filteredAttributeList,
-        defaultSelection: [defaultSelection],
-        hasFiltering: true,
-      })
-    )
-    this.listenTo(
-      this.filterAttribute.currentView.model,
-      'change:value',
-      this.handleAttributeUpdate
-    )
-    this._filterDropdownModel = new DropdownModel({
-      value: this.model.get('comparator') || 'CONTAINS',
-    })
-    this.filterComparator.show(
-      new FilterComparatorDropdownView({
-        model: this._filterDropdownModel,
-        modelForComponent: this.model,
-      })
-    )
-    this.model.set('type', defaultSelection)
-    this.determineInput()
-  },
-  transformValue(value, comparator) {
-    switch (comparator) {
-      case 'NEAR':
-        if (value[0].constructor !== Object) {
-          value[0] = {
-            value: value[0],
-            distance: 2,
-          }
-        }
-        break
-      case 'INTERSECTS':
-      case 'DWITHIN':
-        break
-      default:
-        if (value === null || value[0] === null) {
-          value = ['']
-          break
-        }
-        if (value[0].constructor === Object) {
-          value[0] = value[0].value
-        }
-        break
-    }
-    return value
-  },
-  // With the relative date comparator being the same as =, we need to try and differentiate them this way
-  updateTypeDropdown() {
-    const attribute = this.model.get('type')
-    if (attribute === 'anyGeo') {
-      this.model.set('comparator', [geometryComparators[1]])
-    } else if (attribute === 'anyText') {
-      this.model.set('comparator', [stringComparators[1]])
-    }
-    this.filterAttribute.currentView.model.set('value', [attribute])
-  },
-  handleAttributeUpdate() {
-    const previousAttributeType =
-      metacardDefinitions.metacardTypes[this.model.get('type')].type
-    this.model.set(
-      'type',
-      this.filterAttribute.currentView.model.get('value')[0]
-    )
-    const currentAttributeType =
-      metacardDefinitions.metacardTypes[this.model.get('type')].type
-    if (currentAttributeType !== previousAttributeType) {
-      this.model.set('value', [''])
-    }
-  },
-  delete() {
-    this.model.destroy()
-  },
-  toggleLocationClass(toggle) {
-    this.$el.toggleClass('is-location', toggle)
-  },
-  toggleDateClass(toggle) {
-    this.$el.toggleClass('is-date', toggle)
-  },
-  setDefaultComparator(propertyJSON) {
-    this.toggleLocationClass(false)
-    this.toggleDateClass(false)
-    const currentComparator = this.model.get('comparator')
-    switch (propertyJSON.type) {
-      case 'LOCATION':
-        if (geometryComparators.indexOf(currentComparator) === -1) {
-          this.model.set('comparator', 'INTERSECTS')
-        }
-        this.toggleLocationClass(currentComparator !== 'IS EMPTY')
-        break
-      case 'DATE':
-        if (dateComparators.indexOf(currentComparator) === -1) {
-          this.model.set('comparator', 'BEFORE')
-        }
-        this.toggleDateClass(true)
-        break
-      case 'BOOLEAN':
-        if (booleanComparators.indexOf(currentComparator) === -1) {
-          this.model.set('comparator', '=')
-        }
-        break
-      case 'LONG':
-      case 'DOUBLE':
-      case 'FLOAT':
-      case 'INTEGER':
-      case 'SHORT':
-        if (numberComparators.indexOf(currentComparator) === -1) {
-          this.model.set('comparator', '>')
-        }
-        break
-      default:
-        if (stringComparators.indexOf(currentComparator) === -1) {
-          this.model.set('comparator', 'CONTAINS')
-        }
-        break
-    }
-  },
-  updateValueFromInput() {
-    if (this.filterInput.currentView) {
-      const value = Common.duplicate(
-        this.filterInput.currentView.model.getValue()
-      )
-      const isValid = this.filterInput.currentView.isValid()
-      this.model.set({ value, isValid }, { silent: true })
-    }
-  },
-  determineInput() {
-    this.updateValueFromInput()
-    let value = Common.duplicate(this.model.get('value'))
-    const currentComparator = this.model.get('comparator')
-    value = this.transformValue(value, currentComparator)
-    const type = this.model.get('type')
-    const propertyJSON = generatePropertyJSON(value, type, currentComparator)
-    if (this.options.suggester && propertyJSON.enum === undefined) {
-      this.options.suggester(propertyJSON).then(suggestions => {
-        if (this.filterInput === undefined) {
-          return
-        }
-
-        if (suggestions.length > 0) {
-          propertyJSON.enum = suggestions.map(label => ({
-            label,
-            value: label,
-          }))
-          const ViewToUse = determineView(currentComparator)
-          const model = new PropertyModel(propertyJSON)
-          this.listenTo(model, 'change:value', this.updateValueFromInput)
-          this.filterInput.show(
-            new ViewToUse({
-              model,
-            })
-          )
-          this.turnOnEditing()
-        }
-      })
-    }
-    const ViewToUse = determineView(currentComparator)
-    const model = new PropertyModel(propertyJSON)
-    this.listenTo(model, 'change:value', this.updateValueFromInput)
-    this.filterInput.show(
-      new ViewToUse({
-        model,
-      })
-    )
-
-    const isEditing = this.$el.hasClass('is-editing')
-    if (isEditing || this.options.editing) {
-      this.turnOnEditing()
-    } else {
-      this.turnOffEditing()
-    }
-    this.$el.toggleClass(
-      'is-empty',
-      this.model.get('comparator') === 'IS EMPTY'
-    )
-    this.setDefaultComparator(propertyJSON)
-  },
-  getValue() {
-    let text = '('
-    text += this.model.get('type') + ' '
-    text += comparatorToCQL()[this.model.get('comparator')] + ' '
-    text += this.filterInput.currentView.model.getValue()
-    text += ')'
-    return text
-  },
-  onDestroy() {
-    this._filterDropdownModel.destroy()
-  },
-  turnOnEditing() {
+    turnOnEditing() {
     this.$el.addClass('is-editing')
-    this.filterAttribute.currentView.turnOnEditing()
-    this.filterComparator.currentView.turnOnEditing()
-
-    const property =
-      this.filterInput.currentView.model instanceof ValueModel
-        ? this.filterInput.currentView.model.get('property')
-        : this.filterInput.currentView.model
-    property.set('isEditing', true)
+    //this.filterAttribute.currentView.turnOnEditing()
+    //this.filterComparator.currentView.turnOnEditing()
+    // const property =
+    //   this.filterInput.currentView.model instanceof ValueModel
+    //     ? this.filterInput.currentView.model.get('property')
+    //     : this.filterInput.currentView.model
+    // property.set('isEditing', true)
   },
   turnOffEditing() {
     this.$el.removeClass('is-editing')
-    this.filterAttribute.currentView.turnOffEditing()
-    this.filterComparator.currentView.turnOffEditing()
-
+    //this.filterAttribute.currentView.turnOffEditing()
+    //this.filterComparator.currentView.turnOffEditing()
+    /*
     const property =
       this.filterInput.currentView.model instanceof ValueModel
         ? this.filterInput.currentView.model.get('property')
@@ -394,6 +314,6 @@ the provided value."
     property.set(
       'isEditing',
       this.options.isForm === true || this.options.isFormBuilder === true
-    )
+    )*/
   },
 })
