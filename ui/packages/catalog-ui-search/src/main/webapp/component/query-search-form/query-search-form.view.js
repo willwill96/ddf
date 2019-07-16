@@ -82,7 +82,7 @@ const AutocompleteWrapper = Marionette.LayoutView.extend({
       <TokenizedAutocomplete
         onChange={value => this.model.set('value', value)}
         value={this.model.get('value')}
-               suggestions={["123", "456"]}
+               suggestions={["123", "456", "1", "2", "3", "4", "hi", "hello", "hey", "another", "some more", "more", "even more"]}
       />
     )
   },
@@ -146,7 +146,7 @@ class SearchForm extends React.Component {
               comparator === 'CONTAINS' || comparator === '='
                 ? () => AutocompleteWrapper
                 : null
-            if (isArray(filter.value)) {
+            if (isArray(filter.value)) {  
               model.set('value', filter.value)
             }
             return (

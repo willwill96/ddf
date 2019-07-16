@@ -42,7 +42,6 @@ const Root = styled.div`
   justify-content: flex-start;
   background: ${props =>
     transparentize(0.9, readableColor(props.theme.backgroundContent))};
-  max-width: 1500px;
   overflow: auto;
 `
 
@@ -65,11 +64,17 @@ const InputWrapper = styled.div`
   margin-bottom: auto;
   margin-right: ${props => props.theme.minimumSpacing};
   margin-left: ${props => props.theme.minimumSpacing};
+  display: block;
 `
 
 const DropdownWrapper = styled.div`
   position: absolute;
   z-index: 1000;
+  background-color: ${props => props.theme.backgroundDropdown};
+  margin-top: ${props => props.theme.minimumSpacing};
+  border: 2px solid ${props => props.theme.primaryColor};
+  max-height: 20vh;
+  overflow:auto;
 `
 
 class TokenizedAutoComplete extends React.Component<Props, State> {
@@ -96,33 +101,39 @@ class TokenizedAutoComplete extends React.Component<Props, State> {
   render = () => {
     const onKeyDown = this.areSuggestions() ? undefined : this.keyDown
     return (
-      <Root>
-        {this.state.value.map((val) => {
-          return (
-            <Token onRemove={() => this.removeValue(val)} key={val} label={val} />
-          )
-        })}
-        <InputWrapper innerRef={this.rootRef}>
-          <Input
-            value={this.state.input}
-            placeholder={'Enter * for wildcard'}
-            onChange={e => this.onInputChange(e.target.value)}
-            onKeyDown={onKeyDown}
-            innerRef={this.inputRef}
-          />
-          {this.areSuggestions() && this.state.inputFocused ? (
-            <DropdownWrapper>
-              <Menu onChange={this.onDropdownChange}>
-                {this.getFilteredSuggestions().map(option => (
-                  <MenuItem key={option} value={option}>
-                    {option}
-                  </MenuItem>
-                ))}
-              </Menu>
-            </DropdownWrapper>
-          ) : null}
-        </InputWrapper>
-      </Root>
+      <div style={{ position: 'relative' }}>
+        <Root>
+            {this.state.value.map(val => {
+              return (
+                <Token
+                  onRemove={() => this.removeValue(val)}
+                  key={val}
+                  label={val}
+                />
+              )
+            })}
+          <InputWrapper innerRef={this.rootRef}>
+            <Input
+              value={this.state.input}
+              placeholder={'Enter * for wildcard'}
+              onChange={e => this.onInputChange(e.target.value)}
+              onKeyDown={onKeyDown}
+              innerRef={this.inputRef}
+            />
+            {this.areSuggestions() && this.state.inputFocused ? (
+              <DropdownWrapper>
+                <Menu onChange={this.onDropdownChange}>
+                  {this.getFilteredSuggestions().map(option => (
+                    <MenuItem key={option} value={option}>
+                      {option}
+                    </MenuItem>
+                  ))}
+                </Menu>
+              </DropdownWrapper>
+            ) : null}
+          </InputWrapper>
+        </Root>
+      </div>
     )
   }
 
@@ -167,18 +178,16 @@ class TokenizedAutoComplete extends React.Component<Props, State> {
     if (this.inputRef.current) {
       this.inputRef.current.focus()
       this.inputRef.current.scrollIntoView(false)
+      this.setState({ inputFocused: true })
     }
   }
 
   addValue = (value: string) => {
     let newState = {}
     if (value === '') return
-    if (!this.areSuggestions()) {
-      newState = { ...newState, input: '' }
-    }
     if (!this.state.value.includes(value)) {
       const newValue = this.state.value.concat([value])
-      newState = { ...newState, value: newValue }
+      newState = { input: '', value: newValue }
     }
     this.setState(newState, this.onChange)
   }
