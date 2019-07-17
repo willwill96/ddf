@@ -18,13 +18,14 @@ import { readableColor, transparentize } from 'polished'
 import { buttonTypeEnum, Button } from '../button'
 
 const Root = styled<Props, 'div'>('div')`
-  background: ${({ theme }) => transparentize(0.6, readableColor(theme.backgroundDropdown))};
+  background: ${({ theme }) =>
+    transparentize(0.92, readableColor(theme.backgroundContent))};
   width: fit-content;
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-content: center;
-  border-radius: 3px;
+  border-radius: 1px;
   margin-top: ${props => props.theme.minimumSpacing};
   margin-bottom: ${props => props.theme.minimumSpacing};
   margin-right: ${props => props.theme.minimumSpacing};
@@ -36,8 +37,7 @@ const Text = styled<Props, 'div'>('div')`
   padding-right: ${props => props.theme.minimumSpacing};
   font-size: ${props => props.theme.minimumFontSize};
   font-weight: bold;
-  color: ${({ theme }) =>
-  readableColor(transparentize(0.6, readableColor(theme.backgroundDropdown)))};
+  color: ${({ theme }) => readableColor(theme.backgroundContent)};
   display: inline-block;
   margin: auto;
 `
@@ -51,9 +51,12 @@ const Token = (props: Props) => {
   return (
     <Root {...props}>
       <Text {...props}>{props.label}</Text>
-      <Button icon="fa fa-close"
-      buttonType={buttonTypeEnum.neutral}
-      onClick={props.onRemove}/>
+      <Button
+        icon="fa fa-close"
+        buttonType={buttonTypeEnum.neutral}
+        style={{ opacity: 0.35 }}
+        onClick={props.onRemove}
+      />
     </Root>
   )
 }

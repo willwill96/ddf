@@ -34,6 +34,10 @@ type Props = {
 }
 
 const Root = styled.div`
+  position: relative;
+`
+
+const InputArea = styled.div`
   height: 100%;
   width: 100%;
   display: flex;
@@ -57,6 +61,7 @@ const Input = styled.input`
     outline: none;
     background-color: transparent;
   }
+  padding: 0 0 0 0;
 `
 
 const InputWrapper = styled.div`
@@ -74,11 +79,13 @@ const DropdownWrapper = styled.div`
   margin-top: ${props => props.theme.minimumSpacing};
   border: 2px solid ${props => props.theme.primaryColor};
   max-height: 20vh;
-  overflow:auto;
+  overflow: auto;
+  width: 100%;
 `
 
 class TokenizedAutoComplete extends React.Component<Props, State> {
   inputRef = React.createRef<HTMLInputElement>()
+  dropdownRef = React.createRef<HTMLDivElement>()
   rootRef = React.createRef<HTMLDivElement>()
 
   constructor(props: Props) {
@@ -101,18 +108,18 @@ class TokenizedAutoComplete extends React.Component<Props, State> {
   render = () => {
     const onKeyDown = this.areSuggestions() ? undefined : this.keyDown
     return (
-      <div style={{ position: 'relative' }}>
-        <Root>
-            {this.state.value.map(val => {
-              return (
-                <Token
-                  onRemove={() => this.removeValue(val)}
-                  key={val}
-                  label={val}
-                />
-              )
-            })}
-          <InputWrapper innerRef={this.rootRef}>
+      <Root innerRef={this.rootRef}>
+        <InputArea>
+          {this.state.value.map(val => {
+            return (
+              <Token
+                onRemove={() => this.removeValue(val)}
+                key={val}
+                label={val}
+              />
+            )
+          })}
+          <InputWrapper>
             <Input
               value={this.state.input}
               placeholder={'Enter * for wildcard'}
@@ -120,20 +127,20 @@ class TokenizedAutoComplete extends React.Component<Props, State> {
               onKeyDown={onKeyDown}
               innerRef={this.inputRef}
             />
-            {this.areSuggestions() && this.state.inputFocused ? (
-              <DropdownWrapper>
-                <Menu onChange={this.onDropdownChange}>
-                  {this.getFilteredSuggestions().map(option => (
-                    <MenuItem key={option} value={option}>
-                      {option}
-                    </MenuItem>
-                  ))}
-                </Menu>
-              </DropdownWrapper>
-            ) : null}
           </InputWrapper>
-        </Root>
-      </div>
+        </InputArea>
+        {this.areSuggestions() && this.state.inputFocused ? (
+          <DropdownWrapper innerRef={this.dropdownRef}>
+            <Menu onChange={this.onDropdownChange}>
+              {this.getFilteredSuggestions().map(option => (
+                <MenuItem key={option} value={option}>
+                  {option}
+                </MenuItem>
+              ))}
+            </Menu>
+          </DropdownWrapper>
+        ) : null}
+      </Root>
     )
   }
 
