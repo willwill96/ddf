@@ -24,6 +24,7 @@ import {
   transformValue,
 } from './filterHelper'
 const Common = require('../../js/Common.js')
+import BaseInput from './filter-base-input'
 
 const BaseRoot = styled.div`
   display: inline-block;
@@ -108,7 +109,7 @@ const FilterInput = withListenTo(
           data-help="The value for the property to use during comparison."
           className="filter-input"
         >
-          <MarionetteRegionContainer view={this.component} />
+          <BaseInput />
         </Root>
       )
     }
