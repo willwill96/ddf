@@ -1,23 +1,22 @@
 import * as React from 'react'
 import styled from 'styled-components'
 
+import BooleanInput from './filter-input-boolean'
+import NearInput from './filter-input-near'
+import DateInput from './filter-date-input'
+
 const Root = styled.div`
-width: 100%;
-display: block;
-white-space: nowrap;
-line-height: ${({ theme }) => theme.minimumButtonSize}
-position: relative;
+  width: 100%;
+  display: block;
+  white-space: nowrap;
+  line-height: ${({ theme }) => theme.minimumButtonSize}
+  position: relative;
 `
 
 const InputWrapper = styled.div`
   display: block;
   position: absolute;
   z-index: 1;
-`
-
-const Input = styled.input`
-  width: 100%;
-  height: ${({ theme }) => theme.minimumButtonSize};
 `
 
 class BaseInput extends React.Component {
@@ -27,7 +26,7 @@ class BaseInput extends React.Component {
     return (
       <Root>
         <InputWrapper>
-          <Input />
+          <DateInput />
         </InputWrapper>
       </Root>
     )
