@@ -25,9 +25,8 @@ class BaseInput extends React.Component {
   render() {
     return (
       <Root>
-        <InputWrapper>
-          <DateInput />
-        </InputWrapper>
+        <InputWrapper><DateInput /></InputWrapper>
+          
       </Root>
     )
   }
