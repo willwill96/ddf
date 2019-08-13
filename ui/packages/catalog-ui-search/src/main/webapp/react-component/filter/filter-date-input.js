@@ -29,13 +29,19 @@ const CalendarButton = styled(Button)`
 `
 
 class DateInput extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      value: ''
+    }
+  }
   render() {
     return (
       <Root>
         <Dropdown
           anchor={
             <div>
-              <Input type="text" placeholder="YYYY-MM-DD..." />
+              <Input onChange={(e) => this.setState({value: e.target.value})} value={this.state.value} type="text" placeholder="YYYY-MM-DD..." />
               <CalendarButton
                 buttonType={buttonTypeEnum.primary}
                 icon="glyphicon glyphicon-calendar"
@@ -43,7 +49,7 @@ class DateInput extends React.Component {
             </div>
           }
         >
-          <DateTimePicker />
+          <DateTimePicker value={this.state.value} onChange={(e) => this.setState({value: e.date})}/>
         </Dropdown>
       </Root>
     )

@@ -21,6 +21,7 @@ function getTimeZone() {
 const Root = styled.div`
   border-radius: ${({ theme }) => theme.borderRadius};
   overflow: hidden;
+  margin: auto;
   min-width: ${({ theme }) => `calc(24*${theme.minimumFontSize})`};
 `
 
@@ -33,9 +34,10 @@ class DateTimePicker extends React.Component {
       timeZone: getTimeZone(),
       keyBinds: null,
       inline: true,
+      defaultDate: this.props.value,
     })
-    $(element).on('dp.change', e=> {
-      this.props.onChange()
+    $(element).on('dp.change', e => {
+      this.props.onChange(e)
     })
   }
 

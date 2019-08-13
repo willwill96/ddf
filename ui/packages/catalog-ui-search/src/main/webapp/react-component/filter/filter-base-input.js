@@ -13,20 +13,13 @@ const Root = styled.div`
   position: relative;
 `
 
-const InputWrapper = styled.div`
-  display: block;
-  position: absolute;
-  z-index: 1;
-`
-
 class BaseInput extends React.Component {
   updateIsValid = () => {}
 
   render() {
     return (
       <Root>
-        <InputWrapper><DateInput /></InputWrapper>
-          
+        <NearInput />
       </Root>
     )
   }

@@ -104,8 +104,10 @@ const FilterInput = withListenTo(
           this.state.comparator === 'IS EMPTY' ? 'EMPTY' : this.props.type
         ] || BaseRoot
       return (
-<Root> <DateComponent></DateComponent>
-     </Root>)
+        <Root>
+          <BaseInput />
+        </Root>
+      )
     }
 
     determineInput = () => {
