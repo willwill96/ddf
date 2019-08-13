@@ -6,15 +6,12 @@ import DateTimePicker from './calendar'
 import DateComponent from '../container/input-wrappers/date'
 
 const Root = styled.div`
-  margin: 0px;
-  padding: 0px;
-  border: none;
   height: ${({ theme }) => theme.minimumButtonSize};
 `
 
 const Input = styled.input`
   height: ${({ theme }) => theme.minimumButtonSize};
-  width: 100%;
+  width: ${({ theme }) => `calc(24*${theme.minimumFontSize})`};
 `
 
 const CalendarButton = styled(Button)`
@@ -24,11 +21,12 @@ const CalendarButton = styled(Button)`
   font-size: ${({ theme }) => theme.largeFontSize};
   width: ${({ theme }) => theme.minimumButtonSize};
   height: ${({ theme }) => theme.minimumButtonSize};
-  padding: 0px;
   text-align: center;
+  float:right;
 `
 
 class DateInput extends React.Component {
+  
   constructor(props) {
     super(props)
     this.state = {

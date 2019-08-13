@@ -22,8 +22,8 @@ const Root = styled.div`
   border-radius: ${({ theme }) => theme.borderRadius};
   overflow: hidden;
   margin: auto;
-  min-width: ${({ theme }) => `calc(24*${theme.minimumFontSize})`};
 `
+
 
 class DateTimePicker extends React.Component {
   datePicker = React.createRef()
@@ -41,9 +41,17 @@ class DateTimePicker extends React.Component {
     })
   }
 
+  
+
+  toggleCalendar = () => {
+    const element = findDOMNode(this.datePicker.current)
+    $(element).data("DateTimePicker").toggle()
+    $(element).data("DateTimePicker").destroy()
+
+  }
+
   render() {
-    return <Root ref={this.datePicker} />
+    return <Root onBlur={this.toggleCalendar} ref={this.datePicker} />
   }
 }
-
 export default DateTimePicker

@@ -8,7 +8,6 @@ import DateInput from './filter-date-input'
 const Root = styled.div`
   width: 100%;
   display: block;
-  white-space: nowrap;
   line-height: ${({ theme }) => theme.minimumButtonSize}
   position: relative;
 `
@@ -19,7 +18,7 @@ class BaseInput extends React.Component {
   render() {
     return (
       <Root>
-        <NearInput />
+        <DateInput />
       </Root>
     )
   }

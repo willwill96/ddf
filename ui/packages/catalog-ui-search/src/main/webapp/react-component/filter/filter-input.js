@@ -50,7 +50,7 @@ const LocationRoot = styled(BaseRoot)`
 `
 
 const DateRoot = styled(BaseRoot)`
-  min-width: ${({ theme }) => `calc(24*${theme.minimumFontSize})`};
+  min-width: ${({ theme }) => `calc(24*${theme.minimumFontSize} + ${theme.minimumButtonSize})`};
   height: auto;
 `
 
