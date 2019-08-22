@@ -93,7 +93,7 @@ const DateInput = withListenTo(
                 />
                 <CalendarButton
                   buttonType={buttonTypeEnum.primary}
-                  icon="glyphicon glyphicon-calendar"
+                  icon="fa fa-calendar"
                 />
               </div>
             }
@@ -107,6 +107,10 @@ const DateInput = withListenTo(
           </Dropdown>
         </Root>
       )
+    }
+
+    onChange = () => {
+      this.props.onChange(this.state.value === '' ? '' : this.state.value.toISOString())
     }
 
     updateFormat = () => {
