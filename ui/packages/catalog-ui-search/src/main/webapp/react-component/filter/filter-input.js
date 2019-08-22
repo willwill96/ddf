@@ -14,7 +14,6 @@
  **/
 import * as React from 'react'
 import withListenTo from '../../react-component/backbone-container'
-import MarionetteRegionContainer from '../../react-component/marionette-region-container'
 import styled from 'styled-components'
 const PropertyModel = require('../../component/property/property.js')
 const ValueModel = require('../../component/value/value.js')
@@ -24,7 +23,7 @@ import {
   transformValue,
 } from './filterHelper'
 const Common = require('../../js/Common.js')
-
+import BaseInput from './filter-base-input'
 const BaseRoot = styled.div`
   display: inline-block;
   vertical-align: middle;
@@ -50,7 +49,7 @@ const LocationRoot = styled(BaseRoot)`
 `
 
 const DateRoot = styled(BaseRoot)`
-  min-width: ${({ theme }) => `calc(24*${theme.minimumFontSize})`};
+  min-width: ${({ theme }) => `calc(24*${theme.minimumFontSize} + ${theme.minimumButtonSize})`};
   height: auto;
 `
 
@@ -104,11 +103,8 @@ const FilterInput = withListenTo(
           this.state.comparator === 'IS EMPTY' ? 'EMPTY' : this.props.type
         ] || BaseRoot
       return (
-        <Root
-          data-help="The value for the property to use during comparison."
-          className="filter-input"
-        >
-          <MarionetteRegionContainer view={this.component} />
+        <Root>
+          <BaseInput />
         </Root>
       )
     }
