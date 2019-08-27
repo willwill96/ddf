@@ -5,6 +5,7 @@ import BooleanInput from './filter-input-boolean'
 import NearInput from './filter-input-near'
 import DateInput from './filter-date-input'
 import LocationInput from './filter-location-input'
+import EnumInput from './filter-enum-input'
 
 const Root = styled.div`
   width: 100%;
