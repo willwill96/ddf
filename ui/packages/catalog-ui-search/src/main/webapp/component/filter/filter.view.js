@@ -22,10 +22,15 @@ module.exports = Marionette.LayoutView.extend({
   template() {
     return (
       <Filter
+        attribute={this.model.get('type')}
+        comparator={this.model.get('comparator')}
+        value={this.model.get('value')}
         model={this.model}
+        isValid={this.model.get('isValid')}
         {...this.options}
         editing={this.$el.hasClass('is-editing')}
         onRemove={() => this.delete()}
+        onChange={state => this.onChange(state)}
       />
     )
   },
@@ -35,6 +40,14 @@ module.exports = Marionette.LayoutView.extend({
   },
   delete() {
     this.model.destroy()
+  },
+  onChange(state) {
+    const { attribute, comparator, value } = state
+    this.model.set({
+      type: attribute,
+      comparator,
+      value: [value],
+    })
   },
   turnOnEditing() {
     if (this.$el.hasClass('is-editing')) return

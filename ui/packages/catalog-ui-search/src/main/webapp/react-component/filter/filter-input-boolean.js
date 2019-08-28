@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { readableColor, transparentize } from 'polished'
 
@@ -14,16 +14,21 @@ const Root = styled.button`
   padding-right: 10px;
   height: 100%;
   text-align: left;
-  background: ${({theme}) => transparentize(0.95, readableColor(theme.backgroundContent))}
+  background: ${({ theme }) =>
+    transparentize(0.95, readableColor(theme.backgroundContent))};
 `
 
-const BooleanInput = props => { 
-  const [value, setValue] = useState(true)
+const BooleanInput = props => {
+  const [value, setValue] = useState(props.value || false)
+
+  useEffect(() => {
+    props.onChange(value)
+  }, [value])
 
   return (
-      <Root onClick={() => setValue(!value)}>
-        <BooleanSpan value={value}>{value.toString()}</BooleanSpan>
-      </Root>
+    <Root onClick={() => setValue(!value)}>
+      <BooleanSpan value={value}>{value.toString()}</BooleanSpan>
+    </Root>
   )
 }
 

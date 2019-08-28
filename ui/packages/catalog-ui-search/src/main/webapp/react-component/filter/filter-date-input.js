@@ -10,11 +10,12 @@ const moment = require('moment-timezone')
 
 const Root = styled.div`
   height: ${({ theme }) => theme.minimumButtonSize};
+  width: 100%;
 `
 
 const Input = styled.input`
   height: ${({ theme }) => theme.minimumButtonSize};
-  width: ${({ theme }) => `calc(24*${theme.minimumFontSize})`};
+  width: ${({ theme }) => `calc(100% - ${theme.minimumButtonSize})`};
 `
 
 const CalendarButton = styled(Button)`
@@ -42,15 +43,6 @@ function getTimeZone() {
     .get('timeZone')
 }
 
-function isSameDay(date1, date2) {
-  return (
-    date1 instanceof moment &&
-    date2 instanceof moment &&
-    date1.year() === date2.year() &&
-    date1.dayOfYear() === date2.dayOfYear()
-  )
-}
-
 function formatDate(date) {
   return moment(date)
     .tz(getTimeZone())
@@ -61,8 +53,18 @@ const DateInput = withListenTo(
   class DateInput extends React.Component {
     constructor(props) {
       super(props)
-      this.state = {
-        value: props.value || '',
+      this.state = this.propsToState(props)
+    }
+
+    propsToState({ value }) {
+      if (value !== '') {
+        return {
+          value: moment.tz(moment(value), getTimeZone()),
+          input: formatDate(moment(value)),
+        }
+      }
+      return {
+        value: '',
         input: '',
       }
     }
@@ -75,9 +77,11 @@ const DateInput = withListenTo(
       )
     }
 
-    render() {
-      // State sent to parent should be ISO 8601 with Time Zone +00:00
+    componentWillReceiveProps(props) {
+      this.setState(this.propsToState(props))
+    }
 
+    render() {
       return (
         <Root>
           <Dropdown
@@ -88,7 +92,7 @@ const DateInput = withListenTo(
                   onChange={e => this.setState({ input: e.target.value })}
                   value={this.state.input}
                   type="text"
-                  placeholder={getDateFormat()}
+                  placeholder={this.props.placeholder || getDateFormat()}
                   onClick={e => e.stopPropagation()}
                 />
                 <CalendarButton
@@ -100,7 +104,7 @@ const DateInput = withListenTo(
           >
             <DateTimePicker
               value={this.state.value}
-              onChange={this.updateDate}
+              onChange={this.updateDateFromPicker}
               format={getDateFormat()}
               timeZone={getTimeZone()}
             />
@@ -110,37 +114,45 @@ const DateInput = withListenTo(
     }
 
     onChange = () => {
-      this.props.onChange(this.state.value === '' ? '' : this.state.value.toISOString())
+      this.props.onChange(
+        this.state.value === '' ? '' : this.state.value.toISOString()
+      )
     }
 
     updateFormat = () => {
-      this.setState({ input: formatDate(this.state.value) })
+      this.setState({
+        input: this.state.value === '' ? '' : formatDate(this.state.value),
+      })
     }
 
-    updateDate = e => {
-      const newDate = isSameDay(this.state.value, e.date)
-        ? e.date
-        : e.date.startOf('day')
-      this.setState({
-        value: newDate,
-        input: formatDate(newDate),
-      })
+    updateDateFromPicker = date => {
+      this.setState(
+        {
+          value: date,
+          input: formatDate(date),
+        },
+        this.onChange
+      )
     }
 
     attemptUpdate = () => {
       if (moment(this.state.input).isValid()) {
-        this.setState({
-          value: moment.tz(moment(this.state.input), getTimeZone()),
-          input: formatDate(moment(this.state.input)),
-        })
-      } else if (this.state.input === ''){
-        this.setState({
-          value: '',
-        })
+        this.setState(
+          {
+            value: moment.tz(moment(this.state.input), getTimeZone()),
+            input: formatDate(moment(this.state.input)),
+          },
+          this.onChange
+        )
+      } else if (this.state.input === '') {
+        this.setState(
+          {
+            value: '',
+          },
+          this.onChange
+        )
       } else {
-        this.setState({
-          input: formatDate(this.state.value),
-        })
+        this.updateFormat()
       }
     }
   }

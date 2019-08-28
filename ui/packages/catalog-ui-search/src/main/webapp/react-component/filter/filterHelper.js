@@ -81,26 +81,26 @@ export const determineView = comparator => {
   }
   return necessaryView
 }
-
+/*
 export const transformValue = (value, comparator) => {
   switch (comparator) {
     case 'NEAR':
-      if (value[0].constructor !== Object) {
-        value[0] = {
-          value: value[0],
+      if (value.constructor !== Object) {
+        value = {
+          value,
           distance: 2,
         }
       }
       break
     case 'RANGE':
       if (
-        value[0] !== undefined &&
-        value[0] !== null &&
-        value[0].constructor !== Object
+        value !== undefined &&
+        value !== null &&
+        value.constructor !== Object
       ) {
-        value[0] = {
-          lower: value[0] || 0,
-          upper: value[0] || 0,
+        value = {
+          lower: value || 0,
+          upper: value || 0,
         }
       }
       break
@@ -108,17 +108,17 @@ export const transformValue = (value, comparator) => {
     case 'DWITHIN':
       break
     default:
-      if (value === null || value[0] === null) {
-        value = ['']
+      if (value === null) {
+        value = ''
         break
       }
-      if (value[0].constructor === Object) {
-        value[0] = value[0].value
+      if (value.constructor === Object) {
+        value = value.value
       }
       break
   }
   return value
-}
+}*/
 
 export const getFilteredAttributeList = includedAttributes => {
   return metacardDefinitions.sortedMetacardTypes

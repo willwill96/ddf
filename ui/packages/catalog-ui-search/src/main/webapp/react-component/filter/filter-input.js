@@ -13,34 +13,25 @@
  *
  **/
 import * as React from 'react'
-import withListenTo from '../../react-component/backbone-container'
 import styled from 'styled-components'
-const PropertyModel = require('../../component/property/property.js')
-const ValueModel = require('../../component/value/value.js')
-import {
-  generatePropertyJSON,
-  determineView,
-  transformValue,
-} from './filterHelper'
-const Common = require('../../js/Common.js')
-import BaseInput from './filter-base-input'
+import DateInput from './filter-date-input'
+import BooleanInput from './filter-input-boolean'
+import NearInput from './filter-input-near'
+import BetweenTimeInput from './filter-input-between-time'
+import TextInput from './filter-text-input'
+import LocationInput from './filter-location-input'
+
 const BaseRoot = styled.div`
   display: inline-block;
   vertical-align: middle;
-  margin-right: 0px;
   height: ${({ theme }) => theme.minimumButtonSize};
   line-height: ${({ theme }) => theme.minimumButtonSize};
   min-width: ${({ theme }) => `calc(13 * ${theme.minimumFontSize})`};
-  intrigue-input.is-with-param {
-    min-width: ${({ theme }) => `calc(20 * ${theme.minimumFontSize})`};
-  }
 `
 const LocationRoot = styled(BaseRoot)`
   padding: ${({ theme }) =>
     `${theme.minimumSpacing}
-      1.5rem 0px calc(${theme.minimumSpacing} + 0.75*${
-      theme.minimumButtonSize
-    } + ${theme.minimumButtonSize})`};
+      1.5rem 0px calc(${theme.minimumSpacing} + 0.75*${theme.minimumButtonSize} + ${theme.minimumButtonSize})`};
 
   min-width: ${({ theme }) => `calc(19*${theme.minimumFontSize})`};
   margin: 0px !important;
@@ -49,7 +40,6 @@ const LocationRoot = styled(BaseRoot)`
 `
 
 const DateRoot = styled(BaseRoot)`
-  min-width: ${({ theme }) => `calc(24*${theme.minimumFontSize} + ${theme.minimumButtonSize})`};
   height: auto;
 `
 
@@ -64,80 +54,48 @@ const Roots = {
   EMPTY: EmptyRoot,
 }
 
-const FilterInput = withListenTo(
-  class FilterInput extends React.Component {
-    component
-    constructor(props) {
-      super(props)
-      this.state = this.propsToState(props)
-    }
-
-    propsToState = ({ editing, comparator, attribute }) => {
-      return { editing, comparator, attribute }
-    }
-
-    componentWillReceiveProps = props => {
-      this.setState(this.propsToState(props))
-    }
-
-    render() {
-      this.determineInput()
-      if (this.state.editing) {
-        const property =
-          this.component.model instanceof ValueModel
-            ? this.component.model.get('property')
-            : this.component.model
-        property.set('isEditing', true)
-      } else {
-        const property =
-          this.component.model instanceof ValueModel
-            ? this.component.model.get('property')
-            : this.component.model
-        property.set(
-          'isEditing',
-          this.props.isForm === true || this.props.isFormBuilder === true
-        )
-      }
-      const Root =
-        Roots[
-          this.state.comparator === 'IS EMPTY' ? 'EMPTY' : this.props.type
-        ] || BaseRoot
-      return (
-        <Root>
-          <BaseInput />
-        </Root>
-      )
-    }
-
-    determineInput = () => {
-      let value = Common.duplicate(this.props.model.get('value'))
-      const comparator = Common.duplicate(this.state.comparator)
-      value = transformValue(value, comparator)
-      const attribute = Common.duplicate(this.state.attribute)
-      const propertyJSON = generatePropertyJSON(value, attribute, comparator)
-      const ViewToUse = determineView(comparator)
-      if (
-        this.props.suggestions.length > 0 &&
-        propertyJSON.enum === undefined
-      ) {
-        propertyJSON.enum = this.props.suggestions
-      }
-      const model = new PropertyModel(propertyJSON)
-
-      this.props.listenTo(model, 'change:value', this.updateValueFromInput)
-
-      this.component = new ViewToUse({
-        model,
-      })
-      this.updateValueFromInput()
-    }
-
-    updateValueFromInput = () => {
-      const value = Common.duplicate(this.component.model.getValue())
-      const isValid = this.component.isValid()
-      this.props.model.set({ value, isValid })
-    }
+class FilterInput extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { ...this.propsToState(props) }
   }
-)
+
+  propsToState = ({ editing, comparator, attribute, value }) => {
+    return { editing, comparator, attribute, value }
+  }
+
+  componentWillReceiveProps = props => {
+    this.setState(this.propsToState(props))
+  }
+
+  render() {
+    let MyInput
+    if (this.state.comparator === 'NEAR') {
+      MyInput = NearInput
+    } else if (this.props.type === 'BOOLEAN') {
+      MyInput = BooleanInput
+    } else if (this.state.comparator === 'BETWEEN') {
+      MyInput = BetweenTimeInput
+    } else if (this.props.type === 'DATE') {
+      MyInput = DateInput
+    } else if (this.props.type === 'LOCATION') {
+      MyInput = LocationInput
+    } else {
+      MyInput = TextInput
+    }
+
+    const Root =
+      Roots[this.state.comparator === 'IS EMPTY' ? 'EMPTY' : this.props.type] ||
+      BaseRoot
+    return (
+      <Root>
+        <MyInput value={this.state.value} onChange={this.onChange} />
+      </Root>
+    )
+  }
+  onChange = (value) => {
+    this.props.onChange(value)
+  }
+}
 
 export default FilterInput
