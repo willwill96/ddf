@@ -20,82 +20,74 @@ import NearInput from './filter-input-near'
 import BetweenTimeInput from './filter-input-between-time'
 import TextInput from './filter-text-input'
 import LocationInput from './filter-location-input'
+import EnumInput from './filter-enum-input'
+import NumberInput from './filter-number-input'
+import RelativeTime from './filter-input-relative-time'
+import RangeInput from './filter-input-range'
 
 const BaseRoot = styled.div`
   display: inline-block;
   vertical-align: middle;
-  height: ${({ theme }) => theme.minimumButtonSize};
   line-height: ${({ theme }) => theme.minimumButtonSize};
   min-width: ${({ theme }) => `calc(13 * ${theme.minimumFontSize})`};
+  margin: auto;
 `
 const LocationRoot = styled(BaseRoot)`
   padding: ${({ theme }) =>
     `${theme.minimumSpacing}
-      1.5rem 0px calc(${theme.minimumSpacing} + 0.75*${theme.minimumButtonSize} + ${theme.minimumButtonSize})`};
+      1.5rem 0px calc(${theme.minimumSpacing} + 0.75*${
+      theme.minimumButtonSize
+    } + ${theme.minimumButtonSize})`};
 
   min-width: ${({ theme }) => `calc(19*${theme.minimumFontSize})`};
   margin: 0px !important;
   display: block !important;
-  height: auto;
-`
-
-const DateRoot = styled(BaseRoot)`
-  height: auto;
-`
-
-const EmptyRoot = styled(BaseRoot)`
-  display: none;
 `
 
 const Roots = {
   LOCATION: LocationRoot,
   GEOMETRY: LocationRoot,
-  DATE: DateRoot,
-  EMPTY: EmptyRoot,
 }
 
-class FilterInput extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = { ...this.propsToState(props) }
-  }
+const FilterInput = ({ comparator, value, type, suggestions, onChange }) => {
+  if (comparator === 'IS EMPTY') return null
 
-  propsToState = ({ editing, comparator, attribute, value }) => {
-    return { editing, comparator, attribute, value }
+  let MyInput
+  if (comparator === 'NEAR') {
+    MyInput = NearInput
+  } else if (type === 'BOOLEAN') {
+    MyInput = BooleanInput
+  } else if (comparator === 'BETWEEN') {
+    MyInput = BetweenTimeInput
+  } else if (comparator === 'RELATIVE') {
+    MyInput = RelativeTime
+  } else if (type === 'DATE') {
+    MyInput = DateInput
+  } else if (type === 'LOCATION' || type === 'GEOMETRY') {
+    MyInput = LocationInput
+  } else if (suggestions && suggestions.length > 0) {
+    MyInput = EnumInput
+    //Need to include other number types in this conditional
+  } else if (comparator === 'RANGE') {
+    MyInput = RangeInput
+  } else if (type === 'INTEGER') {
+    MyInput = NumberInput
+  } else {
+    MyInput = TextInput
   }
+  const Root = Roots[type] || BaseRoot
 
-  componentWillReceiveProps = props => {
-    this.setState(this.propsToState(props))
-  }
-
-  render() {
-    let MyInput
-    if (this.state.comparator === 'NEAR') {
-      MyInput = NearInput
-    } else if (this.props.type === 'BOOLEAN') {
-      MyInput = BooleanInput
-    } else if (this.state.comparator === 'BETWEEN') {
-      MyInput = BetweenTimeInput
-    } else if (this.props.type === 'DATE') {
-      MyInput = DateInput
-    } else if (this.props.type === 'LOCATION') {
-      MyInput = LocationInput
-    } else {
-      MyInput = TextInput
-    }
-
-    const Root =
-      Roots[this.state.comparator === 'IS EMPTY' ? 'EMPTY' : this.props.type] ||
-      BaseRoot
-    return (
-      <Root>
-        <MyInput value={this.state.value} onChange={this.onChange} />
-      </Root>
-    )
-  }
-  onChange = (value) => {
-    this.props.onChange(value)
-  }
+  return (
+    <Root>
+      <MyInput
+        allowCustom
+        type={type}
+        suggestions={suggestions}
+        value={value}
+        onChange={value => onChange(value)}
+      />
+    </Root>
+  )
 }
 
 export default FilterInput

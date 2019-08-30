@@ -67,25 +67,27 @@ const ComparatorMenu = styled(Menu)`
   max-height: 50vh;
 `
 
-class FilterComparator extends React.Component {
-  render() {
-    if (!this.props.editing) {
-      return <Root>{this.props.comparator}</Root>
+const FilterComparator = (props) => {
+    if (!props.editing) {
+      return <Root>{props.comparator}</Root>
     }
-    let comparators = typeToComparators[this.props.type]
+    let comparators = typeToComparators[props.type]
     if (
-      this.props.attribute === 'anyGeo' ||
-      this.props.attribute === 'anyText'
+      props.attribute === 'anyGeo' ||
+      props.attribute === 'anyText'
     ) {
       comparators = comparators.filter(comparator => comparator !== 'IS EMPTY')
+    }
+    if (!comparators.includes(props.comparator)) {
+      props.onChange(comparators[0])
     }
 
     return (
       <Root>
-        <Dropdown anchor={<Anchor comparator={this.props.comparator} />}>
+        <Dropdown anchor={<Anchor comparator={props.comparator} />}>
           <ComparatorMenu
-            value={this.props.comparator}
-            onChange={this.props.onChange}
+            value={props.comparator}
+            onChange={props.onChange}
           >
             {comparators.map(comparator => (
               <MenuItem
@@ -99,7 +101,6 @@ class FilterComparator extends React.Component {
         </Dropdown>
       </Root>
     )
-  }
 }
 
 export default FilterComparator

@@ -87,7 +87,7 @@ class LocationInput extends React.Component {
   }
   setModelState() {
     this.setState(this.locationModel.toJSON())
-    this.setValue()
+    this.onChange()
   }
   componentWillMount() {
     this.locationModel.on('change', this.setModelState, this)
@@ -201,7 +201,7 @@ class LocationInput extends React.Component {
   onDestroy() {
     wreqr.vent.trigger('search:drawend', this.model)
   }
-  setValue = () => {
+  onChange = () => {
     const value = this.getCurrentValue()
     this.props.onChange(value)
   }

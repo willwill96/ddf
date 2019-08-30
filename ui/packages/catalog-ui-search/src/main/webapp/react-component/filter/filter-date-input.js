@@ -10,7 +10,7 @@ const moment = require('moment-timezone')
 
 const Root = styled.div`
   height: ${({ theme }) => theme.minimumButtonSize};
-  width: 100%;
+  width: ${({ theme }) => `calc(24 * ${theme.minimumFontSize})`};
 `
 
 const Input = styled.input`
@@ -20,11 +20,7 @@ const Input = styled.input`
 
 const CalendarButton = styled(Button)`
   border-radius: ${({ theme }) => theme.borderRadius};
-  background: ${({ theme }) => theme.primaryColor};
-  border: none;
   font-size: ${({ theme }) => theme.largeFontSize};
-  width: ${({ theme }) => theme.minimumButtonSize};
-  height: ${({ theme }) => theme.minimumButtonSize};
   text-align: center;
   float: right;
 `
@@ -54,13 +50,20 @@ const DateInput = withListenTo(
     constructor(props) {
       super(props)
       this.state = this.propsToState(props)
+      props.onChange(this.getValue(this.state.value))
     }
 
     propsToState({ value }) {
-      if (value !== '') {
-        return {
-          value: moment.tz(moment(value), getTimeZone()),
-          input: formatDate(moment(value)),
+      if (
+        (typeof value === 'string' && value !== '') ||
+        value instanceof Date
+      ) {
+        const date = moment.tz(moment(value), getTimeZone())
+        if (date.isValid()) {
+          return {
+            value: date,
+            input: formatDate(date),
+          }
         }
       }
       return {
@@ -113,10 +116,12 @@ const DateInput = withListenTo(
       )
     }
 
+    getValue = value => {
+      return value === '' ? '' : value.toISOString()
+    }
+
     onChange = () => {
-      this.props.onChange(
-        this.state.value === '' ? '' : this.state.value.toISOString()
-      )
+      this.props.onChange(this.getValue(this.state.value))
     }
 
     updateFormat = () => {

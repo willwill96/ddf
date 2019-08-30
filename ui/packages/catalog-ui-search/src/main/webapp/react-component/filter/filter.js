@@ -14,18 +14,8 @@
  **/
 
 const metacardDefinitions = require('../../component/singletons/metacard-definitions.js')
-const Common = require('../../js/Common.js')
 
 import * as React from 'react'
-import {
-  geometryComparators,
-  dateComparators,
-  stringComparators,
-  numberComparators,
-  booleanComparators,
-} from '../../component/filter/comparators'
-
-import { generatePropertyJSON } from './filterHelper'
 
 import ExtensionPoints from '../../extension-points'
 import styled from 'styled-components'
@@ -70,20 +60,11 @@ class Filter extends React.Component {
     this.state = {
       comparator,
       attribute,
-      editing: props.editing,
-      suggestions: [],
+      suggestions: props.suggestions || [],
       value: (props.value && props.value[0]) || '',
       isValid: props.isValid,
     }
     this.props.onChange(this.state)
-  }
-
-  componentDidMount = () => {
-    this.updateComparator()
-  }
-
-  componentWillReceiveProps = ({ editing }) => {
-    this.setState({ editing })
   }
 
   render() {
@@ -95,31 +76,31 @@ class Filter extends React.Component {
         </FilterRearrange>
         <FilterRemove
           buttonType={buttonTypeEnum.negative}
-          editing={this.state.editing}
+          editing={this.props.editing}
           onClick={this.props.onRemove}
           icon="fa fa-minus"
         />
         <FilterAttribute
           attribute={this.state.attribute}
           includedAttributes={this.props.includedAttributes}
-          editing={this.state.editing}
+          editing={this.props.editing}
           onChange={this.updateAttribute}
         />
         <FilterComparator
           comparator={this.state.comparator}
-          editing={this.state.editing}
+          editing={this.props.editing}
           type={type}
           attribute={this.state.attribute}
-          onChange={comparator => this.setState({ comparator })}
+          onChange={comparator => this.setState({ comparator }, this.onChange)}
         />
 
         <FilterInput
           suggestions={this.state.suggestions}
           attribute={this.state.attribute}
           comparator={this.state.comparator}
-          editing={this.state.editing}
-          onChange={(value) => {
-            this.setState({ value }, ()=>this.props.onChange(this.state))
+          editing={this.props.editing}
+          onChange={value => {
+            this.setState({ value }, () => this.props.onChange(this.state))
           }}
           isValid={this.state.isValid}
           value={this.state.value}
@@ -134,92 +115,31 @@ class Filter extends React.Component {
     )
   }
 
-  updateComparator = (
-    attribute = this.state.attribute,
-    value = this.state.value
-  ) => {
-    const currentComparator = this.state.comparator
-    const propertyJSON = generatePropertyJSON(
-      value,
-      attribute,
-      currentComparator
-    )
-
-    let newComparator = currentComparator
-    switch (propertyJSON.type) {
-      case 'LOCATION':
-        if (
-          geometryComparators.indexOf(currentComparator) === -1 ||
-          attribute === 'anyGeo'
-        ) {
-          newComparator = 'INTERSECTS'
-        }
-        break
-      case 'DATE':
-        if (dateComparators.indexOf(currentComparator) === -1) {
-          newComparator = 'BEFORE'
-        }
-        break
-      case 'BOOLEAN':
-        if (booleanComparators.indexOf(currentComparator) === -1) {
-          newComparator = '='
-        }
-        break
-      case 'LONG':
-      case 'DOUBLE':
-      case 'FLOAT':
-      case 'INTEGER':
-      case 'SHORT':
-      case 'RANGE':
-        if (numberComparators.indexOf(currentComparator) === -1) {
-          newComparator = '>'
-        }
-        break
-      default:
-        if (
-          stringComparators.indexOf(currentComparator) === -1 ||
-          (attribute === 'anyText' && currentComparator === 'IS EMPTY')
-        ) {
-          newComparator = 'CONTAINS'
-        }
-        break
-    }
-    this.setState(
-      {
-        comparator: newComparator,
-        attribute,
-        value,
-      },
-      () => this.updateSuggestions && this.props.onChange(this.state)
-    )
+  onChange = () => {
+    this.updateSuggestions()
+    this.props.onChange(this.state)
   }
 
   updateSuggestions = async () => {
-    const propertyJSON = generatePropertyJSON(
-      this.state.value,
-      this.state.attribute,
-      this.state.comparator
-    )
-    if (this.props.suggester) {
-      const suggestions = (await this.props.suggester(propertyJSON)).map(
-        suggestion => ({
-          label: suggestion,
-          value: suggestion,
-        })
-      )
-      this.setState({ suggestions })
+    const { attribute } = this.state
+    let suggestions = []
+    if (metacardDefinitions.enums[attribute]) {
+      suggestions = metacardDefinitions.enums[attribute].map(suggestion => {
+        return { label: suggestion, value: suggestion }
+      })
+    } else if (this.props.suggester) {
+      suggestions = (await this.props.suggester(
+        metacardDefinitions.metacardTypes[attribute]
+      )).map(suggestion => ({
+        label: suggestion,
+        value: suggestion,
+      }))
     }
+    this.setState({ suggestions })
   }
 
   updateAttribute = attribute => {
-    const previousAttributeType =
-      metacardDefinitions.metacardTypes[this.state.attribute].type
-    const newAttributeType = metacardDefinitions.metacardTypes[attribute].type
-    let value = Common.duplicate(this.state.value)
-    if (newAttributeType !== previousAttributeType) {
-      value = ''
-    }
-    this.updateComparator(attribute, value)
+    this.setState({ attribute }, this.onChange)
   }
 }
 
