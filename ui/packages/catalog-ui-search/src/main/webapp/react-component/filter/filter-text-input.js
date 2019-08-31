@@ -1,27 +1,29 @@
 import React, { useState, useEffect, useRef } from 'react'
+import TextField from '../text-field'
 import styled from 'styled-components'
 
-const Input = styled.input`
+const Input = styled(TextField)`
   min-width: ${({ theme }) => `calc(10 * ${theme.mediumFontSize})`};
   width: ${({ width, theme }) =>
     `calc(${width}px + 2*${theme.mediumFontSize})`};
-  font-size: ${({ theme }) => theme.mediumFontSize};
-  max-width: ${({ theme }) => `calc(50 * ${theme.mediumFontSize})`};
+  font-size: inherit;
+  max-width: ${({ theme }) => `calc(45 * ${theme.mediumFontSize})`};
 `
 
 const Ruler = styled.div`
-  visibility: hidden;
   top: -9999px;
   left: -9999px;
   position: absolute;
   white-space: nowrap;
-  font-size: ${({ theme }) => theme.mediumFontSize};
+  font-size: inherit;
 `
 
+function parseValue(value) {
+  return (typeof value === 'object' ? value.value : value) || ''
+}
+
 const TextInput = props => {
-  const [value, setValue] = useState(
-    (typeof props.value === 'object' ? props.value.value : props.value) || ''
-  )
+  const [value, setValue] = useState(parseValue(props.value))
 
   const ref = useRef(null)
 
@@ -36,9 +38,9 @@ const TextInput = props => {
         width={ref.current ? ref.current.offsetWidth : 0}
         placeholder="Use * for wildcard"
         type={props.type}
-        onChange={e => setValue(e.target.value)}
+        onChange={setValue}
       />
-      <Ruler ref={ref}>{value.split(' ').join('\xA0')}</Ruler>
+      <Ruler ref={ref}>{value}</Ruler>
     </React.Fragment>
   )
 }

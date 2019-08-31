@@ -1,5 +1,5 @@
 import React from 'react'
-import styled, { ThemeProvider } from 'styled-components'
+import styled from 'styled-components'
 import NumberInput from './filter-number-input'
 
 const Root = styled.div`
@@ -34,6 +34,7 @@ class RangeInput extends React.Component {
     super(props)
     const { lower = 0, upper = 0 } = this.getStartingValue() || {}
     this.state = { lower, upper }
+    this.onChange()
   }
 
   getStartingValue = () => {

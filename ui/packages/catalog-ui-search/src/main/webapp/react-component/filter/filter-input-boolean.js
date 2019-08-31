@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { readableColor, transparentize } from 'polished'
 
 const BooleanSpan = styled.span`
-  font-size: ${({ theme }) => theme.mediumFontSize};
+  font-size: ${({ theme }) => theme.minimumFontSize};
   ${({ value, theme }) => (value ? `color: ${theme.primaryColor}` : null)}
   font-weight: bolder;
 `

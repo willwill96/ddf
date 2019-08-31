@@ -45,6 +45,11 @@ const FilterRemove = styled(Button)`
   line-height: ${({ theme }) => theme.minimumButtonSize};
   display: ${({ editing }) => (editing ? 'inline-block' : 'none')};
 `
+
+function getAttributeType(attribute) {
+  return metacardDefinitions.metacardTypes[attribute].type
+}
+
 class Filter extends React.Component {
   constructor(props) {
     super(props)
@@ -68,7 +73,7 @@ class Filter extends React.Component {
   }
 
   render() {
-    const type = metacardDefinitions.metacardTypes[this.state.attribute].type
+    const type = getAttributeType(this.state.attribute)
     return (
       <React.Fragment>
         <FilterRearrange className="filter-rearrange">
@@ -81,7 +86,7 @@ class Filter extends React.Component {
           icon="fa fa-minus"
         />
         <FilterAttribute
-          attribute={this.state.attribute}
+          value={this.state.attribute}
           includedAttributes={this.props.includedAttributes}
           editing={this.props.editing}
           onChange={this.updateAttribute}
@@ -139,7 +144,13 @@ class Filter extends React.Component {
   }
 
   updateAttribute = attribute => {
-    this.setState({ attribute }, this.onChange)
+    const prevType = getAttributeType(this.state.attribute)
+    const newType = getAttributeType(attribute)
+    let value = this.state.value
+    if (prevType !== newType) {
+      value = ''
+    }
+    this.setState({ attribute, value }, this.onChange)
   }
 }
 

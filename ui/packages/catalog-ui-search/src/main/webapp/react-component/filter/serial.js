@@ -13,7 +13,7 @@
  *
  **/
 /* loosely based on ISO 8601 time intervals */
-const serialize = (last, unit) => {
+const serialize = ({ last, unit }) => {
   if (unit === undefined || !parseFloat(last)) {
     return
   }
@@ -21,7 +21,7 @@ const serialize = (last, unit) => {
   return `RELATIVE(${prefix + last + unit.toUpperCase()})`
 }
 const deserialize = value => {
-  if (typeof(value) !== 'string') {
+  if (typeof value !== 'string') {
     return
   }
 

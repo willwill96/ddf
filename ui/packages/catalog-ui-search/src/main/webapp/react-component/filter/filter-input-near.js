@@ -17,7 +17,7 @@ const Input = styled(TextField)`
   width: ${({ theme }) => `calc(${theme.minimumFontSize} * 8)`};
 `
 
-function getReturnValue(value, distance) {
+const serialize = (value, distance) => {
   let ret = {}
 
   ret.value = value
@@ -26,43 +26,31 @@ function getReturnValue(value, distance) {
   return ret
 }
 
-function getStartingValue(value) {
-  if (typeof(value) === 'object') {
+const deserializeValue = value => {
+  if (typeof value === 'object') {
     return value.value || ''
   } else {
     return value || ''
   }
 }
 
-function getStartingDistance(value) {
+const deserializeDistance = value => {
   return (value && value.distance) || '2'
 }
 
 const NearInput = props => {
-  const [value, setValue] = useState(getStartingValue(props.value))
-  const [distance, setDistance] = useState(getStartingDistance(props.value))
+  const [value, setValue] = useState(deserializeValue(props.value))
+  const [distance, setDistance] = useState(deserializeDistance(props.value))
 
   useEffect(() => {
-    props.onChange(getReturnValue(value, distance))
+    props.onChange(serialize(value, distance))
   }, [value, distance])
 
   return (
     <Root>
-      <Input
-        type="text"
-        value={value}
-        onChange={value => {
-          setValue(value)
-        }}
-      />
+      <Input type="text" value={value} onChange={setValue} />
       <Label>within</Label>
-      <Input
-        type="number"
-        value={distance}
-        onChange={value => {
-          setDistance(value)
-        }}
-      />
+      <Input type="number" value={distance} onChange={setDistance} />
     </Root>
   )
 }

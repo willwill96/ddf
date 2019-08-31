@@ -14,7 +14,7 @@
  **/
 import * as React from 'react'
 import styled from 'styled-components'
-import DateInput from './filter-date-input'
+import DateInput from '../inputs/date-input'
 import BooleanInput from './filter-input-boolean'
 import NearInput from './filter-input-near'
 import BetweenTimeInput from './filter-input-between-time'
@@ -80,11 +80,11 @@ const FilterInput = ({ comparator, value, type, suggestions, onChange }) => {
   return (
     <Root>
       <MyInput
-        allowCustom
+        matchCase={['MATCHCASE', '='].includes(comparator)}
         type={type}
         suggestions={suggestions}
         value={value}
-        onChange={value => onChange(value)}
+        onChange={onChange}
       />
     </Root>
   )

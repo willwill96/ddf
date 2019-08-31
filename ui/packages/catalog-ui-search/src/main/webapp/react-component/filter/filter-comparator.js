@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import * as React from 'react'
+import React, { useEffect } from 'react'
 import styled from 'styled-components'
 import Dropdown from '../dropdown'
 import { Menu, MenuItem } from '../menu'
@@ -40,13 +40,17 @@ const AnchorRoot = styled.div`
   padding: 0 ${({ theme }) => theme.minimumSpacing};
 `
 
+const AnchorSpan = styled.span`
+  display: inline-block;
+`
+
 const Anchor = props => (
-  <AnchorRoot onClick={props.onClick}>
-    <span style={{ display: 'inline-block' }}>
+  <AnchorRoot {...props}>
+    <AnchorSpan>
       {props.comparator}
       &nbsp;
-    </span>
-    <span style={{ display: 'inline-block' }} className="fa fa-caret-down" />
+    </AnchorSpan>
+    <AnchorSpan className="fa fa-caret-down" />
   </AnchorRoot>
 )
 
@@ -67,40 +71,51 @@ const ComparatorMenu = styled(Menu)`
   max-height: 50vh;
 `
 
-const FilterComparator = (props) => {
-    if (!props.editing) {
-      return <Root>{props.comparator}</Root>
-    }
-    let comparators = typeToComparators[props.type]
-    if (
-      props.attribute === 'anyGeo' ||
-      props.attribute === 'anyText'
-    ) {
-      comparators = comparators.filter(comparator => comparator !== 'IS EMPTY')
-    }
-    if (!comparators.includes(props.comparator)) {
-      props.onChange(comparators[0])
-    }
+function getComparators(attribute, type) {
+  let comparators = typeToComparators[type]
+  if (attribute === 'anyGeo' || attribute === 'anyText') {
+    comparators = comparators.filter(comparator => comparator !== 'IS EMPTY')
+  }
+  return comparators
+}
 
-    return (
-      <Root>
-        <Dropdown anchor={<Anchor comparator={props.comparator} />}>
-          <ComparatorMenu
-            value={props.comparator}
-            onChange={props.onChange}
-          >
-            {comparators.map(comparator => (
-              <MenuItem
-                style={{ paddingLeft: '2rem' }}
-                value={comparator}
-                key={comparator}
-                title={comparator}
-              />
-            ))}
-          </ComparatorMenu>
-        </Dropdown>
-      </Root>
-    )
+const ComparatorMenuItem = props => (
+  <MenuItem {...props} style={{ paddingLeft: '1.5rem' }} />
+)
+
+const FilterComparator = ({
+  attribute,
+  comparator,
+  editing,
+  onChange,
+  type,
+}) => {
+  useEffect(() => {
+    const comparators = getComparators(attribute, type)
+    if (!comparators.includes(comparator)) {
+      onChange(comparators[0])
+    }
+  }, [attribute])
+
+  if (!editing) {
+    return <Root>{comparator}</Root>
+  }
+  const comparators = getComparators(attribute, type)
+  return (
+    <Root>
+      <Dropdown anchor={<Anchor comparator={comparator} />}>
+        <ComparatorMenu value={comparator} onChange={onChange}>
+          {comparators.map(comparator => (
+            <ComparatorMenuItem
+              value={comparator}
+              key={comparator}
+              title={comparator}
+            />
+          ))}
+        </ComparatorMenu>
+      </Dropdown>
+    </Root>
+  )
 }
 
 export default FilterComparator

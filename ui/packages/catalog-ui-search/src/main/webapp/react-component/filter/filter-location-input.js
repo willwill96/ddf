@@ -120,11 +120,7 @@ class LocationInput extends React.Component {
   }
   deserialize = () => {
     const filter = this.props.value ? this.props.value : null
-    if (
-      filter === null ||
-      filter.value === undefined ||
-      filter.value === null
-    ) {
+    if (filter === null || filter.value == undefined) {
       return
     }
 

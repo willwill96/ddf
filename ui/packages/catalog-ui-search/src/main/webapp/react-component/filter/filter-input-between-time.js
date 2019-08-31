@@ -12,25 +12,11 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import React, { useState, useEffect } from 'react'
-import styled from 'styled-components'
-import DateInput from './filter-date-input'
-const moment = require('moment')
+import React from 'react'
+import BetweenTimeInput from '../inputs/between-time-input'
+import moment from 'moment'
 
-const Label = styled.span`
-  font-weight: bolder;
-`
-
-const Root = styled.div`
-  display: flex;
-  flex-direction: column;
-`
-
-const InputContainer = styled.div`
-  margin-bottom: ${({theme})=> theme.mediumSpacing};
-`
-
-const getValue = (from, to) => {
+const serialize = ({ from, to }) => {
   const fromMoment = moment(from, moment.ISO_8601)
   const toMoment = moment(to, moment.ISO_8601)
   if (!fromMoment.isValid() || !toMoment.isValid()) {
@@ -41,7 +27,7 @@ const getValue = (from, to) => {
   return `${from}/${to}`
 }
 
-const parseValue = value => {
+const deserialize = value => {
   if (value.includes('/')) {
     const dates = value.split('/')
     const from = dates[0]
@@ -57,35 +43,15 @@ const parseValue = value => {
   }
 }
 
-const BetweenTime = props => {
-  const value = parseValue(props.value)
-  const [from, setFrom] = useState(value.from)
-  const [to, setTo] = useState(value.to)
-
-  useEffect(() => {
-    props.onChange(getValue(from, to))
-  }, [from, to])
-
+const FilterBetweenTime = props => {
+  const value = deserialize(props.value || '')
   return (
-    <Root>
-      <InputContainer>
-        <Label>From</Label>
-        <DateInput
-          placeholder="Limit search to after this time."
-          value={from}
-          onChange={value => setFrom(value)}
-        />
-      </InputContainer>
-      <InputContainer>
-        <Label>To</Label>
-        <DateInput
-          placeholder="Limit search to before this time."
-          value={to}
-          onChange={value => setTo(value)}
-        />
-      </InputContainer>
-    </Root>
+    <BetweenTimeInput
+      from={value.from}
+      to={value.to}
+      onChange={val => props.onChange(serialize(val))}
+    />
   )
 }
 
-export default BetweenTime
+export default FilterBetweenTime

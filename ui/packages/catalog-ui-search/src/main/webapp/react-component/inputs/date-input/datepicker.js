@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import $ from 'jquery'
 import styled from 'styled-components'
-const moment = require('moment-timezone')
+import moment from 'moment-timezone'
 import { findDOMNode } from 'react-dom'
 
 const Root = styled.div`
