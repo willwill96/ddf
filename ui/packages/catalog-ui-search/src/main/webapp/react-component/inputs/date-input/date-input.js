@@ -7,6 +7,7 @@ import withListenTo from '../../backbone-container'
 import TextField from '../../text-field'
 import { getDateFormat, getTimeZone, formatDate } from './dateHelper'
 import user from '../../../component/singletons/user-instance'
+import PropTypes from 'prop-types'
 import moment from 'moment-timezone'
 
 const Input = styled(TextField)`
@@ -129,5 +130,12 @@ const DateInput = withListenTo(
     }
   }
 )
+DateInput.propTypes = {
+  /** The current selected value. */
+  value: PropTypes.any,
+
+  /** Value change handler. */
+  onChange: PropTypes.func.isRequired,
+}
 
 export default DateInput

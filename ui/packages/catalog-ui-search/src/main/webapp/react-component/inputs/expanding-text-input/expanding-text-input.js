@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react'
 import TextField from '../../text-field'
 import styled from 'styled-components'
+import PropTypes from 'prop-types'
 
 const Root = styled.div`
   min-width: ${({ theme }) => `calc(10 * ${theme.mediumFontSize})`};
   width: ${({ width, theme }) =>
-    `calc(${width}px + 2*${theme.mediumFontSize})`};
+    `calc(${width}px + 4*${theme.mediumFontSize})`};
   max-width: ${({ theme }) => `calc(45 * ${theme.mediumFontSize})`};
 `
 
@@ -22,12 +23,8 @@ const Ruler = styled.div`
   font-size: ${({ theme }) => theme.mediumFontSize};
 `
 
-function parseValue(value) {
-  return (typeof value === 'object' ? value.value : value) || ''
-}
-
 const TextInput = props => {
-  const [value, setValue] = useState(parseValue(props.value))
+  const [value, setValue] = useState(props.value)
 
   const ref = useRef(null)
 
@@ -39,12 +36,20 @@ const TextInput = props => {
     <Root width={ref.current ? ref.current.offsetWidth : 0}>
       <Input
         value={value}
-        placeholder="Use * for wildcard"
+        placeholder={props.placeholder}
         onChange={setValue}
       />
       <Ruler ref={ref}>{value}</Ruler>
     </Root>
   )
+}
+
+TextInput.propTypes = {
+  /** The current selected value. */
+  value: PropTypes.string,
+
+  /** Value change handler. */
+  onChange: PropTypes.func.isRequired,
 }
 
 export default TextInput

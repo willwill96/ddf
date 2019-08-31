@@ -4,6 +4,7 @@ import { Menu, MenuItem } from '../../menu'
 import TextField from '../../text-field'
 import { matchesFilter } from '../../../component/select/filterHelper'
 import styled from 'styled-components'
+import PropTypes from 'prop-types'
 
 const TextWrapper = styled.div`
   padding: ${({ theme }) => theme.minimumSpacing};
@@ -16,11 +17,10 @@ const EnumMenuItem = props => (
 class EnumInput extends React.Component {
   constructor(props) {
     super(props)
+    const { suggestions } = props
     let value = props.value
     let label = props.value
-    let selected = props.suggestions.find(
-      suggestion => value === suggestion.value
-    )
+    let selected = suggestions.find(suggestion => value === suggestion.value)
 
     if (selected) {
       value = selected.value
@@ -46,10 +46,7 @@ class EnumInput extends React.Component {
             onChange={input => this.setState({ input })}
           />
         </TextWrapper>
-        <Menu
-          value={this.state.value}
-          onChange={this.onChange}
-        >
+        <Menu value={this.state.value} onChange={this.onChange}>
           {this.props.allowCustom && !this.inputMatchesSuggestions() && (
             <EnumMenuItem value={this.state.input}>
               {this.state.input} (custom)
@@ -95,4 +92,20 @@ class EnumInput extends React.Component {
   }
 }
 
+EnumInput.propTypes = {
+  /** The current selected value. */
+  value: PropTypes.any,
+
+  /** Value change handler. */
+  onChange: PropTypes.func.isRequired,
+
+  /** Array that represents the options. [{ label: string, value: string}] */
+  suggestions: PropTypes.array.isRequired,
+
+  /** Should filtering be case sensitive? */
+  matchCase: PropTypes.bool,
+
+  /** Should custom values be allowed? */
+  allowCustom: PropTypes.bool,
+}
 export default EnumInput
