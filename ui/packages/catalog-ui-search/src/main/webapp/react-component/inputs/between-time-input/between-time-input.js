@@ -31,6 +31,8 @@ const BetweenTime = props => {
           placeholder="Limit search to after this time."
           value={from}
           onChange={setFrom}
+          format = {props.format}
+          timeZone = {props.timeZone}
         />
       </InputContainer>
       <InputContainer>
@@ -39,6 +41,8 @@ const BetweenTime = props => {
           placeholder="Limit search to before this time."
           value={to}
           onChange={setTo}
+          format = {props.format}
+          timeZone = {props.timeZone}
         />
       </InputContainer>
     </Root>

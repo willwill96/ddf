@@ -4,6 +4,8 @@ import styled from 'styled-components'
 import moment from 'moment-timezone'
 import { findDOMNode } from 'react-dom'
 
+/* Dependent on the eonasdan-bootstrap-datetimepicker dependency */
+
 const Root = styled.div`
   border-radius: ${({ theme }) => theme.borderRadius};
   overflow: hidden;
@@ -20,7 +22,7 @@ const DateTimePicker = props => {
   const datePicker = useRef(null)
 
   useEffect(() => {
-    const value = props.value === '' ? moment() : props.value
+    const value = props.value && props.value.isValid() ? props.value : moment()
     const element = findDOMNode(datePicker.current)
     $(element).datetimepicker({
       format: props.format,

@@ -12,18 +12,9 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import * as React from 'react'
+import React from 'react'
 import styled from 'styled-components'
-import DateInput from '../inputs/date-input'
-import BooleanInput from './filter-input-boolean'
-import NearInput from './filter-input-near'
-import BetweenTimeInput from './filter-input-between-time'
-import TextInput from './filter-text-input'
-import LocationInput from './filter-location-input'
-import EnumInput from './filter-enum-input'
-import NumberInput from './filter-number-input'
-import RelativeTime from './filter-input-relative-time'
-import RangeInput from './filter-input-range'
+import { determineInput } from './filterHelper'
 
 const BaseRoot = styled.div`
   display: inline-block;
@@ -35,9 +26,7 @@ const BaseRoot = styled.div`
 const LocationRoot = styled(BaseRoot)`
   padding: ${({ theme }) =>
     `${theme.minimumSpacing}
-      1.5rem 0px calc(${theme.minimumSpacing} + 0.75*${
-      theme.minimumButtonSize
-    } + ${theme.minimumButtonSize})`};
+      1.5rem 0px calc(${theme.minimumSpacing} + 0.75*${theme.minimumButtonSize} + ${theme.minimumButtonSize})`};
 
   min-width: ${({ theme }) => `calc(19*${theme.minimumFontSize})`};
   margin: 0px !important;
@@ -50,36 +39,11 @@ const Roots = {
 }
 
 const FilterInput = ({ comparator, value, type, suggestions, onChange }) => {
-  if (comparator === 'IS EMPTY') return null
-
-  let MyInput
-  if (comparator === 'NEAR') {
-    MyInput = NearInput
-  } else if (type === 'BOOLEAN') {
-    MyInput = BooleanInput
-  } else if (comparator === 'BETWEEN') {
-    MyInput = BetweenTimeInput
-  } else if (comparator === 'RELATIVE') {
-    MyInput = RelativeTime
-  } else if (type === 'DATE') {
-    MyInput = DateInput
-  } else if (type === 'LOCATION' || type === 'GEOMETRY') {
-    MyInput = LocationInput
-  } else if (suggestions && suggestions.length > 0) {
-    MyInput = EnumInput
-    //Need to include other number types in this conditional
-  } else if (comparator === 'RANGE') {
-    MyInput = RangeInput
-  } else if (type === 'INTEGER') {
-    MyInput = NumberInput
-  } else {
-    MyInput = TextInput
-  }
   const Root = Roots[type] || BaseRoot
-
+  const Input = determineInput(comparator, type, suggestions)
   return (
     <Root>
-      <MyInput
+      <Input
         matchCase={['MATCHCASE', '='].includes(comparator)}
         type={type}
         suggestions={suggestions}

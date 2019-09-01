@@ -14,16 +14,9 @@
  **/
 import React, { useEffect } from 'react'
 import styled from 'styled-components'
-import Dropdown from '../dropdown'
-import { Menu, MenuItem } from '../menu'
-
-import {
-  geometryComparators,
-  dateComparators,
-  stringComparators,
-  numberComparators,
-  booleanComparators,
-} from '../../component/filter/comparators'
+import Dropdown from '../../dropdown'
+import { Menu, MenuItem } from '../../menu'
+import { getComparators } from './comparatorUtils'
 
 const Root = styled.div`
   display: inline-block;
@@ -54,30 +47,9 @@ const Anchor = props => (
   </AnchorRoot>
 )
 
-const typeToComparators = {
-  STRING: stringComparators,
-  DATE: dateComparators,
-  LONG: numberComparators,
-  DOUBLE: numberComparators,
-  FLOAT: numberComparators,
-  INTEGER: numberComparators,
-  SHORT: numberComparators,
-  LOCATION: geometryComparators,
-  GEOMETRY: geometryComparators,
-  BOOLEAN: booleanComparators,
-}
-
 const ComparatorMenu = styled(Menu)`
   max-height: 50vh;
 `
-
-function getComparators(attribute, type) {
-  let comparators = typeToComparators[type]
-  if (attribute === 'anyGeo' || attribute === 'anyText') {
-    comparators = comparators.filter(comparator => comparator !== 'IS EMPTY')
-  }
-  return comparators
-}
 
 const ComparatorMenuItem = props => (
   <MenuItem {...props} style={{ paddingLeft: '1.5rem' }} />

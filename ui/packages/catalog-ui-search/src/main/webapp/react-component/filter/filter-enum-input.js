@@ -5,10 +5,11 @@ const deserialize = (value) => {
   return typeof value === 'object' ? value.value : value || ''
 }
 
-const FilterEnumInput = ({ suggestions, value, onChange }) => {
+const FilterEnumInput = ({ matchCase, onChange, suggestions, value }) => {
   return (
     <EnumInput
       allowCustom
+      matchCase={matchCase}
       suggestions={suggestions}
       onChange={onChange}
       value={deserialize(value)}

@@ -1,19 +1,16 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { Button, buttonTypeEnum } from '../../presentation/button'
 import Dropdown from '../../dropdown'
 import DateTimePicker from './datepicker'
-import withListenTo from '../../backbone-container'
 import TextField from '../../text-field'
-import { getDateFormat, getTimeZone, formatDate } from './dateHelper'
-import user from '../../../component/singletons/user-instance'
-import PropTypes from 'prop-types'
+import { formatDate, parseInput } from './dateHelper'
 import moment from 'moment-timezone'
 
 const Input = styled(TextField)`
   display: inline-block;
   height: ${({ theme }) => theme.minimumButtonSize};
-  width: ${({ theme }) => `calc(24 * ${theme.minimumFontSize})`};
+  width: ${({ theme }) => `calc(17 * ${theme.mediumFontSize})`};
 `
 
 const CalendarButton = styled(Button)`
@@ -28,114 +25,42 @@ const Anchor = styled.div`
   flex-direction: row;
 `
 
-const DateInput = withListenTo(
-  class DateInput extends React.Component {
-    constructor(props) {
-      super(props)
-      this.state = this.propsToState(props)
-      props.onChange(this.getValue())
-    }
+const DateInput = props => {
+  const [value, setValue] = useState(moment(props.value || ''))
+  const [input, setInput] = useState('')
 
-    propsToState(props) {
-      let value = ''
-      let input = ''
+  useEffect(() => {
+    props.onChange(value)
+    setInput(formatDate(value, props.timeZone, props.format))
+  }, [value, props.format, props.timeZone])
 
-      const date = moment(props.value || '')
-      if (date.isValid()) {
-        value = date
-        input = formatDate(date)
-      }
-
-      return { value, input }
-    }
-
-    componentDidMount() {
-      this.props.listenTo(
-        user.getPreferences(),
-        'change:timeZone change:dateTimeFormat',
-        this.updateInput
-      )
-    }
-
-    render() {
-      return (
-        <Dropdown
-          anchor={
-            <Anchor>
-              <Input
-                onBlur={this.attemptUpdate}
-                onChange={input => this.setState({ input })}
-                value={this.state.input}
-                type="text"
-                placeholder={this.props.placeholder || getDateFormat()}
-                onClick={e => e.stopPropagation()}
-              />
-              <CalendarButton
-                buttonType={buttonTypeEnum.primary}
-                icon="fa fa-calendar"
-              />
-            </Anchor>
-          }
-        >
-          <DateTimePicker
-            value={this.state.value}
-            onChange={this.updateDateFromPicker}
-            format={getDateFormat()}
-            timeZone={getTimeZone()}
+  return (
+    <Dropdown
+      anchor={
+        <Anchor>
+          <Input
+            onBlur={() => setValue(parseInput(input, props.timeZone, value))}
+            onChange={setInput}
+            value={input}
+            type="text"
+            placeholder={props.placeholder || props.format}
+            onClick={e => e.stopPropagation()}
           />
-        </Dropdown>
-      )
-    }
-
-    getValue = () => {
-      const { value } = this.state
-      return value === '' ? '' : value.toISOString()
-    }
-
-    onChange = () => {
-      this.props.onChange(this.getValue())
-    }
-
-    updateInput = () => {
-      this.setState({
-        input: this.state.value === '' ? '' : formatDate(this.state.value),
-      })
-    }
-
-    updateDateFromPicker = date => {
-      this.setState(
-        {
-          value: date,
-          input: formatDate(date),
-        },
-        this.onChange
-      )
-    }
-
-    attemptUpdate = () => {
-      const date = moment(this.state.input)
-      if (date.isValid()) {
-        this.setState(
-          {
-            value: moment.tz(date, getTimeZone()),
-            input: formatDate(date),
-          },
-          this.onChange
-        )
-      } else if (this.state.input === '') {
-        this.setState({ value: '' }, this.onChange)
-      } else {
-        this.updateInput()
+          <CalendarButton
+            buttonType={buttonTypeEnum.primary}
+            icon="fa fa-calendar"
+          />
+        </Anchor>
       }
-    }
-  }
-)
-DateInput.propTypes = {
-  /** The current selected value. */
-  value: PropTypes.any,
-
-  /** Value change handler. */
-  onChange: PropTypes.func.isRequired,
+    >
+      <DateTimePicker
+        value={value}
+        onChange={setValue}
+        format={props.format}
+        timeZone={props.timeZone}
+      />
+    </Dropdown>
+  )
 }
 
 export default DateInput

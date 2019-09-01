@@ -1,22 +1,19 @@
-import user from '../../../component/singletons/user-instance'
 import moment from 'moment-timezone'
 
-export const getDateFormat = () => {
-  return user
-    .get('user')
-    .get('preferences')
-    .get('dateTimeFormat')['datetimefmt']
+export const formatDate = (date, timeZone, format) => {
+  if (!date.isValid()) {
+    return ''
+  }
+  return date.tz(timeZone).format(format)
 }
 
-export const getTimeZone = () => {
-  return user
-    .get('user')
-    .get('preferences')
-    .get('timeZone')
-}
-
-export const formatDate = date => {
-  return moment(date)
-    .tz(getTimeZone())
-    .format(getDateFormat())
+export const parseInput = (input, timezone, fallback) => {
+  if (input === '') {
+    return moment('')
+  }
+  const date = moment(input)
+  if (date.isValid()) {
+    return moment.tz(date, timezone)
+  }
+  return moment(fallback)
 }

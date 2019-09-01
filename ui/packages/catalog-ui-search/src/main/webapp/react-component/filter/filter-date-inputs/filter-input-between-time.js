@@ -12,19 +12,22 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import React from 'react'
-import BetweenTimeInput from '../inputs/between-time-input'
+import React, { useState, useEffect } from 'react'
+import BetweenTimeInput from '../../inputs/between-time-input'
+import withListenTo from '../../backbone-container'
+import user from '../../../component/singletons/user-instance'
+import { getTimeZone, getDateFormat } from './dateUtils'
 import moment from 'moment'
 
-const serialize = ({ from, to }) => {
-  const fromMoment = moment(from, moment.ISO_8601)
-  const toMoment = moment(to, moment.ISO_8601)
-  if (!fromMoment.isValid() || !toMoment.isValid()) {
+const serialize = (value) => {
+  const from = moment(value.from)
+  const to = moment(value.to)
+  if (!from.isValid() || !to.isValid()) {
     return ''
-  } else if (fromMoment.isAfter(toMoment)) {
-    return `${to}/${from}`
+  } else if (from.isAfter(to)) {
+    return `${to.toISOString()}/${from.toISOString()}`
   }
-  return `${from}/${to}`
+  return `${from.toISOString()}/${to.toISOString()}`
 }
 
 const deserialize = value => {
@@ -44,14 +47,29 @@ const deserialize = value => {
 }
 
 const FilterBetweenTime = props => {
+  const [timeZone, setTimeZone] = useState(getTimeZone())
+  const [dateFormat, setDateFormat] = useState(getDateFormat())
   const value = deserialize(props.value || '')
+
+  useEffect(() => {
+    props.listenTo(user.getPreferences(), 'change:timeZone', () => {
+      setTimeZone(getTimeZone())
+    })
+
+    props.listenTo(user.getPreferences(), 'change:dateTimeFormat', () => {
+      setDateFormat(getDateFormat())
+    })
+  }, [])
+
   return (
     <BetweenTimeInput
       from={value.from}
       to={value.to}
-      onChange={val => props.onChange(serialize(val))}
+      format={dateFormat}
+      timeZone={timeZone}
+      onChange={val => props.onChange(serialize(val) || '')}
     />
   )
 }
 
-export default FilterBetweenTime
+export default withListenTo(FilterBetweenTime)
