@@ -20,6 +20,8 @@ import {
   booleanComparators,
 } from '../../../component/filter/comparators'
 
+import { getAttributeType } from '../filterHelper'
+
 const typeToComparators = {
   STRING: stringComparators,
   DATE: dateComparators,
@@ -33,8 +35,8 @@ const typeToComparators = {
   BOOLEAN: booleanComparators,
 }
 
-export const getComparators = (attribute, type) => {
-  let comparators = typeToComparators[type]
+export const getComparators = attribute => {
+  let comparators = typeToComparators[getAttributeType(attribute)]
   if (attribute === 'anyGeo' || attribute === 'anyText') {
     comparators = comparators.filter(comparator => comparator !== 'IS EMPTY')
   }

@@ -12,19 +12,29 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+import EnumInput from '../../../../inputs/enum-input'
+import { deserializeValue } from '../textFilterHelper'
 
-import { storiesOf, action, text } from '../../storybook'
+const FilterEnumInput = props => {
+  const [value, setValue] = useState(deserializeValue(props.value))
 
-import ExpandingTextInput from '.'
+  useEffect(
+    () => {
+      props.onChange(value)
+    },
+    [value]
+  )
 
-const stories = storiesOf('ExpandingTextInput', module)
-
-stories.add('basic', () => {
   return (
-    <ExpandingTextInput
-      value={text('value', 'value')}
-      onChange={action('onChange')}
+    <EnumInput
+      allowCustom
+      matchCase={props.matchCase}
+      suggestions={props.suggestions}
+      onChange={setValue}
+      value={value}
     />
   )
-})
+}
+
+export default FilterEnumInput

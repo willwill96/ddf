@@ -55,24 +55,21 @@ const ComparatorMenuItem = props => (
   <MenuItem {...props} style={{ paddingLeft: '1.5rem' }} />
 )
 
-const FilterComparator = ({
-  attribute,
-  comparator,
-  editing,
-  onChange,
-  type,
-}) => {
-  useEffect(() => {
-    const comparators = getComparators(attribute, type)
-    if (!comparators.includes(comparator)) {
-      onChange(comparators[0])
-    }
-  }, [attribute])
+const FilterComparator = ({ attribute, comparator, editing, onChange }) => {
+  useEffect(
+    () => {
+      const comparators = getComparators(attribute)
+      if (!comparators.includes(comparator)) {
+        onChange(comparators[0])
+      }
+    },
+    [attribute]
+  )
 
   if (!editing) {
     return <Root>{comparator}</Root>
   }
-  const comparators = getComparators(attribute, type)
+  const comparators = getComparators(attribute)
   return (
     <Root>
       <Dropdown anchor={<Anchor comparator={comparator} />}>

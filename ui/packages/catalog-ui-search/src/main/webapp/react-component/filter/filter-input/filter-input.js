@@ -14,7 +14,8 @@
  **/
 import React from 'react'
 import styled from 'styled-components'
-import { determineInput } from './filterHelper'
+import { getAttributeType } from '../filterHelper'
+import { determineInput } from './filterInputHelper'
 
 const BaseRoot = styled.div`
   display: inline-block;
@@ -26,7 +27,9 @@ const BaseRoot = styled.div`
 const LocationRoot = styled(BaseRoot)`
   padding: ${({ theme }) =>
     `${theme.minimumSpacing}
-      1.5rem 0px calc(${theme.minimumSpacing} + 0.75*${theme.minimumButtonSize} + ${theme.minimumButtonSize})`};
+      1.5rem 0px calc(${theme.minimumSpacing} + 0.75*${
+      theme.minimumButtonSize
+    } + ${theme.minimumButtonSize})`};
 
   min-width: ${({ theme }) => `calc(19*${theme.minimumFontSize})`};
   margin: 0px !important;
@@ -38,14 +41,20 @@ const Roots = {
   GEOMETRY: LocationRoot,
 }
 
-const FilterInput = ({ comparator, value, type, suggestions, onChange }) => {
+const FilterInput = ({
+  comparator,
+  value,
+  attribute,
+  suggestions,
+  onChange,
+}) => {
+  const type = getAttributeType(attribute)
   const Root = Roots[type] || BaseRoot
   const Input = determineInput(comparator, type, suggestions)
   return (
     <Root>
       <Input
         matchCase={['MATCHCASE', '='].includes(comparator)}
-        type={type}
         suggestions={suggestions}
         value={value}
         onChange={onChange}

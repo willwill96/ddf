@@ -12,19 +12,19 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import React from 'react'
+import { matchesFilter } from '../../../component/select/filterHelper'
 
-import { storiesOf, action, text } from '../../storybook'
-
-import ExpandingTextInput from '.'
-
-const stories = storiesOf('ExpandingTextInput', module)
-
-stories.add('basic', () => {
-  return (
-    <ExpandingTextInput
-      value={text('value', 'value')}
-      onChange={action('onChange')}
-    />
+export const getFilteredSuggestions = (input, suggestions, matchCase) => {
+  return suggestions.filter(suggestion =>
+    matchesFilter(input, suggestion.label, matchCase)
   )
-})
+}
+
+export const inputMatchesSuggestions = (input, suggestions, matchCase) => {
+  if (matchCase) {
+    return suggestions.find(({ label }) => label === input)
+  }
+  return suggestions.find(
+    ({ label }) => label.toLowerCase() === input.toLowerCase()
+  )
+}

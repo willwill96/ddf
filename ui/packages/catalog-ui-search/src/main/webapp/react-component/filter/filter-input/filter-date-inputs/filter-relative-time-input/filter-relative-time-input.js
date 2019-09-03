@@ -13,47 +13,25 @@
  *
  **/
 
-import React from 'react'
-import RelativeTimeInput from '../../inputs/relative-time-input'
+import React, { useEffect, useState } from 'react'
+import RelativeTimeInput from '../../../../inputs/relative-time-input'
+import { deserialize, serialize } from './relativeTimeHelper'
 
-const serialize = ({ last, unit }) => {
-  if (unit === undefined || !parseFloat(last)) {
-    return
-  }
-  const prefix = unit === 'm' || unit === 'h' ? 'PT' : 'P'
-  return `RELATIVE(${prefix + last + unit.toUpperCase()})`
-}
-
-const deserialize = value => {
-  if (typeof value !== 'string') {
-    return
-  }
-
-  const match = value.match(/RELATIVE\(Z?([A-Z]*)(\d+\.*\d*)(.)\)/)
-  if (!match) {
-    return
-  }
-
-  let [, prefix, last, unit] = match
-  last = parseFloat(last)
-  unit = unit.toLowerCase()
-  if (prefix === 'P' && unit === 'm') {
-    //must capitalize months
-    unit = unit.toUpperCase()
-  }
-
-  return {
-    last,
-    unit,
-  }
-}
 const FilterRelativeTimeInput = props => {
-  const value = deserialize(props.value) || { last: '', unit: '' }
+  const [value, setValue] = useState(
+    deserialize(props.value) || { last: '', unit: '' }
+  )
+  useEffect(
+    () => {
+      props.onChange(serialize(value))
+    },
+    [value]
+  )
   return (
     <RelativeTimeInput
       last={value.last}
       unit={value.unit}
-      onChange={val => props.onChange(serialize(val))}
+      onChange={setValue}
     />
   )
 }

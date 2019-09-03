@@ -1,9 +1,23 @@
-import React from 'react'
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+import React, { useState } from 'react'
 import Dropdown from '../../dropdown'
 import { Menu, MenuItem } from '../../menu'
 import TextField from '../../text-field'
-import { matchesFilter } from '../../../component/select/filterHelper'
 import styled from 'styled-components'
+import { getFilteredSuggestions, inputMatchesSuggestions } from './enumHelper'
 import PropTypes from 'prop-types'
 
 const TextWrapper = styled.div`
@@ -14,87 +28,51 @@ const EnumMenuItem = props => (
   <MenuItem {...props} style={{ paddingLeft: '1.5rem' }} />
 )
 
-class EnumInput extends React.Component {
-  constructor(props) {
-    super(props)
-    const { suggestions } = props
-    let value = props.value
-    let label = props.value
-    let selected = suggestions.find(suggestion => value === suggestion.value)
-
-    if (selected) {
-      value = selected.value
-      label = selected.label
-    } else if (!props.allowCustom) {
-      value = suggestions[0].value
-      label = suggestions[0].label
-    }
-
-    const input = ''
-    this.state = { value, label, input }
-    props.onChange(value)
-  }
-
-  render() {
-    return (
-      <Dropdown label={this.state.label}>
-        <TextWrapper>
-          <TextField
-            autoFocus
-            value={this.state.input}
-            placeholder={'Type to Filter'}
-            onChange={input => this.setState({ input })}
-          />
-        </TextWrapper>
-        <Menu value={this.state.value} onChange={this.onChange}>
-          {this.props.allowCustom && !this.inputMatchesSuggestions() && (
-            <EnumMenuItem value={this.state.input}>
-              {this.state.input} (custom)
-            </EnumMenuItem>
+const EnumInput = ({
+  allowCustom,
+  matchCase,
+  onChange,
+  suggestions,
+  value,
+}) => {
+  const [input, setInput] = useState('')
+  const selected = suggestions.find(suggestion => suggestion.value === value)
+  const filteredSuggestions = getFilteredSuggestions(
+    input,
+    suggestions,
+    matchCase
+  )
+  const displayInput = !inputMatchesSuggestions(input, suggestions, matchCase)
+  return (
+    <Dropdown label={(selected && selected.label) || value}>
+      <TextWrapper>
+        <TextField
+          autoFocus
+          value={input}
+          placeholder={'Type to Filter'}
+          onChange={setInput}
+        />
+      </TextWrapper>
+      <Menu value={value} onChange={onChange}>
+        {allowCustom &&
+          displayInput && (
+            <EnumMenuItem value={input}>{input} (custom)</EnumMenuItem>
           )}
-          {this.getFilteredSuggestions().map(suggestion => {
-            return (
-              <EnumMenuItem key={suggestion.value} value={suggestion.value}>
-                {suggestion.label}
-              </EnumMenuItem>
-            )
-          })}
-        </Menu>
-      </Dropdown>
-    )
-  }
-
-  onChange = value => {
-    this.props.onChange(value)
-
-    const selected = this.props.suggestions.find(
-      suggestion => suggestion.value === value
-    )
-    const label = selected ? selected.label : value
-    this.setState({ value, label })
-  }
-
-  getFilteredSuggestions = () => {
-    return this.props.suggestions.filter(suggestion =>
-      matchesFilter(this.state.input, suggestion.label, this.props.matchCase)
-    )
-  }
-
-  inputMatchesSuggestions = () => {
-    const { input } = this.state
-    const { suggestions } = this.props
-    if (this.props.matchCase) {
-      return suggestions.find(({ label }) => label === input)
-    }
-    return suggestions.find(
-      ({ label }) => label.toLowerCase() === input.toLowerCase()
-    )
-  }
+        {filteredSuggestions.map(suggestion => {
+          return (
+            <EnumMenuItem key={suggestion.value} value={suggestion.value}>
+              {suggestion.label}
+            </EnumMenuItem>
+          )
+        })}
+      </Menu>
+    </Dropdown>
+  )
 }
 
 EnumInput.propTypes = {
   /** The current selected value. */
-  value: PropTypes.any,
+  value: PropTypes.string,
 
   /** Value change handler. */
   onChange: PropTypes.func.isRequired,

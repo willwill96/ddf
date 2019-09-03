@@ -12,19 +12,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import React from 'react'
 
-import { storiesOf, action, text } from '../../storybook'
-
-import ExpandingTextInput from '.'
-
-const stories = storiesOf('ExpandingTextInput', module)
-
-stories.add('basic', () => {
-  return (
-    <ExpandingTextInput
-      value={text('value', 'value')}
-      onChange={action('onChange')}
-    />
-  )
-})
+export { default as NumberInput } from './filter-number-input'
+export { default as RangeInput } from './filter-range-input'

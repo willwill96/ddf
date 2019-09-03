@@ -12,19 +12,34 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import React from 'react'
+export const serialize = ({ last, unit }) => {
+  if (unit === undefined || !parseFloat(last)) {
+    return
+  }
+  const prefix = unit === 'm' || unit === 'h' ? 'PT' : 'P'
+  return `RELATIVE(${prefix + last + unit.toUpperCase()})`
+}
 
-import { storiesOf, action, text } from '../../storybook'
+export const deserialize = value => {
+  if (typeof value !== 'string') {
+    return
+  }
 
-import ExpandingTextInput from '.'
+  const match = value.match(/RELATIVE\(Z?([A-Z]*)(\d+\.*\d*)(.)\)/)
+  if (!match) {
+    return
+  }
 
-const stories = storiesOf('ExpandingTextInput', module)
+  let [, prefix, last, unit] = match
+  last = parseFloat(last)
+  unit = unit.toLowerCase()
+  if (prefix === 'P' && unit === 'm') {
+    //must capitalize months
+    unit = unit.toUpperCase()
+  }
 
-stories.add('basic', () => {
-  return (
-    <ExpandingTextInput
-      value={text('value', 'value')}
-      onChange={action('onChange')}
-    />
-  )
-})
+  return {
+    last,
+    unit,
+  }
+}

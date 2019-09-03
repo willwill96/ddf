@@ -14,25 +14,16 @@
  **/
 import metacardDefinitions from '../../component/singletons/metacard-definitions.js'
 import properties from '../../js/properties.js'
-import BooleanInput from './filter-boolean-input'
-import NearInput from './filter-near-input'
-import TextInput from './filter-text-input'
-import LocationInput from './filter-location-input'
-import EnumInput from './filter-enum-input'
-import NumberInput from './filter-number-input'
-import RangeInput from './filter-range-input'
-import {
-  DateInput,
-  RelativeTimeInput,
-  BetweenTimeInput,
-} from './filter-date-inputs'
 
 export const getFilteredAttributeList = includedAttributes => {
   return metacardDefinitions.sortedMetacardTypes
     .filter(({ id }) => !properties.isHidden(id))
     .filter(({ id }) => !metacardDefinitions.isHiddenType(id))
-    .filter(({ id }) =>
-      includedAttributes === undefined ? true : includedAttributes.includes(id)
+    .filter(
+      ({ id }) =>
+        includedAttributes === undefined
+          ? true
+          : includedAttributes.includes(id)
     )
     .map(({ alias, id }) => ({
       label: alias || id,
@@ -41,38 +32,6 @@ export const getFilteredAttributeList = includedAttributes => {
     }))
 }
 
-export const determineInput = (comparator, type, suggestions) => {
-  switch (comparator) {
-    case 'IS EMPTY':
-      return null
-    case 'NEAR':
-      return NearInput
-    case 'BETWEEN':
-      return BetweenTimeInput
-    case 'RELATIVE':
-      return RelativeTimeInput
-    case 'RANGE':
-      return RangeInput
-  }
-
-  switch (type) {
-    case 'BOOLEAN':
-      return BooleanInput
-    case 'DATE':
-      return DateInput
-    case 'LOCATION':
-    case 'GEOMETRY':
-      return LocationInput
-    case 'LONG':
-    case 'DOUBLE':
-    case 'FLOAT':
-    case 'INTEGER':
-    case 'SHORT':
-      return NumberInput
-  }
-
-  if (suggestions && suggestions.length > 0) {
-    return EnumInput
-  }
-  return TextInput
+export const getAttributeType = attribute => {
+  return metacardDefinitions.metacardTypes[attribute].type
 }

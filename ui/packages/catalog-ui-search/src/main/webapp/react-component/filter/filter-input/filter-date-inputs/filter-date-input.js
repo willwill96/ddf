@@ -13,9 +13,9 @@
  *
  **/
 import React, { useState, useEffect } from 'react'
-import DateInput from '../../inputs/date-input'
-import withListenTo from '../../backbone-container'
-import user from '../../../component/singletons/user-instance'
+import DateInput from '../../../inputs/date-input'
+import withListenTo from '../../../backbone-container'
+import user from '../../../../component/singletons/user-instance'
 import { getTimeZone, getDateFormat } from './dateUtils'
 
 const FilterDateInput = props => {
@@ -33,9 +33,12 @@ const FilterDateInput = props => {
     })
   }, [])
 
-  useEffect(() => {
-    props.onChange(date)
-  }, [date])
+  useEffect(
+    () => {
+      props.onChange(date)
+    },
+    [date]
+  )
 
   return (
     <DateInput

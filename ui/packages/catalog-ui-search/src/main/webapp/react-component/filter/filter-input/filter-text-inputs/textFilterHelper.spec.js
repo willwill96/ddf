@@ -12,19 +12,14 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import React from 'react'
+import { expect } from 'chai'
+import { deserializeValue } from './textFilterHelper'
 
-import { storiesOf, action, text } from '../../storybook'
-
-import ExpandingTextInput from '.'
-
-const stories = storiesOf('ExpandingTextInput', module)
-
-stories.add('basic', () => {
-  return (
-    <ExpandingTextInput
-      value={text('value', 'value')}
-      onChange={action('onChange')}
-    />
-  )
+describe('deserialize', () => {
+  it('deserializes near input format', () => {
+    expect(deserializeValue({ value: 'value', distance: 4 })).to.equal('value')
+  })
+  it('leaves strings alone', () => {
+    expect(deserializeValue('value')).to.equal('value')
+  })
 })

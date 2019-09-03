@@ -13,16 +13,18 @@
  *
  **/
 import React from 'react'
-import withListenTo from '../backbone-container'
-const LocationView = require('../location/index.js')
-const LocationOldModel = require('../../component/location-old/location-old')
-const { Direction } = require('../../component/location-new/utils/dms-utils.js')
-const ShapeUtils = require('../../js/ShapeUtils.js')
-const CQLUtils = require('../../js/CQLUtils.js')
-const wreqr = require('../../js/wreqr.js')
-const store = require('../../js/store.js')
+import withListenTo from '../../backbone-container'
+const LocationView = require('../../location/index.js')
+const LocationOldModel = require('../../../component/location-old/location-old')
+const {
+  Direction,
+} = require('../../../component/location-new/utils/dms-utils.js')
+const ShapeUtils = require('../../../js/ShapeUtils.js')
+const CQLUtils = require('../../../js/CQLUtils.js')
+const wreqr = require('../../../js/wreqr.js')
+const store = require('../../../js/store.js')
 const wkx = require('wkx')
-import { deserialize } from '../../component/location-old/location-serialization'
+import { deserialize } from '../../../component/location-old/location-serialization'
 
 const filterToLocationOldModel = filter => {
   if (filter === '') return filter

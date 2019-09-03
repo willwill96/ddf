@@ -12,19 +12,20 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+import RangeInput from '../../../inputs/number-range-input'
+import { deserializeRange } from './numberFilterHelper'
 
-import { storiesOf, action, text } from '../../storybook'
-
-import ExpandingTextInput from '.'
-
-const stories = storiesOf('ExpandingTextInput', module)
-
-stories.add('basic', () => {
-  return (
-    <ExpandingTextInput
-      value={text('value', 'value')}
-      onChange={action('onChange')}
-    />
+const FilterRangeInput = props => {
+  const [value, setValue] = useState(deserializeRange(props.value))
+  useEffect(
+    () => {
+      props.onChange(value)
+    },
+    [value]
   )
-})
+
+  return <RangeInput onChange={range => setValue(range)} {...value} />
+}
+
+export default FilterRangeInput

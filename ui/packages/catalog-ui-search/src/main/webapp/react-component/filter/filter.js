@@ -12,8 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-
-const metacardDefinitions = require('../../component/singletons/metacard-definitions.js')
+import metacardDefinitions from '../../component/singletons/metacard-definitions.js'
 
 import * as React from 'react'
 
@@ -24,6 +23,7 @@ import { Button, buttonTypeEnum } from '../presentation/button'
 import FilterAttribute from './filter-attribute'
 import FilterComparator from './filter-comparator'
 import FilterInput from './filter-input'
+import { getAttributeType } from './filterHelper'
 
 const FilterRearrange = styled.div`
   ${GrabCursor};
@@ -46,10 +46,6 @@ const FilterRemove = styled(Button)`
   display: ${({ editing }) => (editing ? 'inline-block' : 'none')};
 `
 
-function getAttributeType(attribute) {
-  return metacardDefinitions.metacardTypes[attribute].type
-}
-
 class Filter extends React.Component {
   constructor(props) {
     super(props)
@@ -69,11 +65,14 @@ class Filter extends React.Component {
       value: (props.value && props.value[0]) || '',
       isValid: props.isValid,
     }
-    this.props.onChange(this.state)
+    props.onChange(this.state)
+  }
+
+  componentDidMount() {
+    this.updateSuggestions()
   }
 
   render() {
-    const type = getAttributeType(this.state.attribute)
     return (
       <React.Fragment>
         <FilterRearrange className="filter-rearrange">
@@ -94,7 +93,6 @@ class Filter extends React.Component {
         <FilterComparator
           comparator={this.state.comparator}
           editing={this.props.editing}
-          type={type}
           attribute={this.state.attribute}
           onChange={comparator => this.setState({ comparator }, this.onChange)}
         />
@@ -109,7 +107,6 @@ class Filter extends React.Component {
           }}
           isValid={this.state.isValid}
           value={this.state.value}
-          type={type}
         />
         <ExtensionPoints.filterActions
           model={this.props.model}

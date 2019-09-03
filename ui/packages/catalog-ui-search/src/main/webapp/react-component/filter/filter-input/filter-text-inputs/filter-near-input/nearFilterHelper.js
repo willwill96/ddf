@@ -12,19 +12,13 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import React from 'react'
+export const serialize = (value, distance) => {
+  return {
+    value,
+    distance: Math.max(1, parseInt(distance) || 0).toString(),
+  }
+}
 
-import { storiesOf, action, text } from '../../storybook'
-
-import ExpandingTextInput from '.'
-
-const stories = storiesOf('ExpandingTextInput', module)
-
-stories.add('basic', () => {
-  return (
-    <ExpandingTextInput
-      value={text('value', 'value')}
-      onChange={action('onChange')}
-    />
-  )
-})
+export const deserializeDistance = value => {
+  return (value && value.distance) || '2'
+}

@@ -1,3 +1,17 @@
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
 import React, { useState, useEffect, useRef } from 'react'
 import TextField from '../../text-field'
 import styled from 'styled-components'
@@ -24,22 +38,23 @@ const Ruler = styled.div`
 `
 
 const TextInput = props => {
-  const [value, setValue] = useState(props.value)
-
   const ref = useRef(null)
-
-  useEffect(() => {
-    props.onChange(value)
-  }, [value])
+  const [width, setWidth] = useState(0)
+  useEffect(
+    () => {
+      setWidth(ref.current.offsetWidth)
+    },
+    [props.value]
+  )
 
   return (
-    <Root width={ref.current ? ref.current.offsetWidth : 0}>
+    <Root width={width}>
       <Input
-        value={value}
+        value={props.value}
         placeholder={props.placeholder}
-        onChange={setValue}
+        onChange={props.onChange}
       />
-      <Ruler ref={ref}>{value}</Ruler>
+      <Ruler ref={ref}>{props.value}</Ruler>
     </Root>
   )
 }

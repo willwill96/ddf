@@ -12,6 +12,18 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-export { default as DateInput } from './filter-date-input'
-export { default as BetweenTimeInput } from './filter-input-between-time'
-export { default as RelativeTimeInput } from './filter-input-relative-time'
+
+import { expect } from 'chai'
+import { deserializeRange } from './numberFilterHelper'
+
+describe('deserializeRange', () => {
+  it('deserializes range', () => {
+    expect(deserializeRange({ lower: 0, upper: 5 })).to.deep.equal({
+      lower: 0,
+      upper: 5,
+    })
+  })
+  it('carries over plain number', () => {
+    expect(deserializeRange(4)).to.deep.equal({ lower: 4, upper: 4 })
+  })
+})

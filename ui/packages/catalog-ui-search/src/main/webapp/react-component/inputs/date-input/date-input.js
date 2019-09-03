@@ -1,3 +1,17 @@
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { Button, buttonTypeEnum } from '../../presentation/button'
@@ -29,17 +43,22 @@ const DateInput = props => {
   const [value, setValue] = useState(moment(props.value || ''))
   const [input, setInput] = useState('')
 
-  useEffect(() => {
-    props.onChange(value)
-    setInput(formatDate(value, props.timeZone, props.format))
-  }, [value, props.format, props.timeZone])
+  useEffect(
+    () => {
+      props.onChange(value)
+      setInput(formatDate(value, props.timeZone, props.format))
+    },
+    [value, props.format, props.timeZone]
+  )
 
   return (
     <Dropdown
       anchor={
         <Anchor>
           <Input
-            onBlur={() => setValue(parseInput(input, props.timeZone, value))}
+            onBlur={() =>
+              setValue(parseInput(input, props.timeZone, props.format, value))
+            }
             onChange={setInput}
             value={input}
             type="text"

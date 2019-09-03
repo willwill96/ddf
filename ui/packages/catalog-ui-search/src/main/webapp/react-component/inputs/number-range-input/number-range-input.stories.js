@@ -12,18 +12,20 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import user from '../../../component/singletons/user-instance'
+import React from 'react'
 
-export const getTimeZone = () => {
-  return user
-    .get('user')
-    .get('preferences')
-    .get('timeZone')
-}
+import { storiesOf, action, number } from '../../storybook'
 
-export const getDateFormat = () => {
-  return user
-    .get('user')
-    .get('preferences')
-    .get('dateTimeFormat')['datetimefmt']
-}
+import NumberRangeInput from '.'
+
+const stories = storiesOf('NumberRangeInput', module)
+
+stories.add('basic', () => {
+  return (
+    <NumberRangeInput
+      lower={number('lower', 0)}
+      upper={number('upper', 0)}
+      onChange={action('onChange')}
+    />
+  )
+})

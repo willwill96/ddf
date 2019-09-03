@@ -12,19 +12,23 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import React from 'react'
+import { expect } from 'chai'
+import { deserializeDistance, serialize } from './nearFilterHelper'
 
-import { storiesOf, action, text } from '../../storybook'
+describe('deserializeDistance', () => {
+  it('deserializes distance', () => {
+    expect(deserializeDistance({ value: 'value', distance: '4' })).to.equal('4')
+  })
+  it('defaults distance to 2', () => {
+    expect(deserializeDistance('value')).to.equal('2')
+  })
+})
 
-import ExpandingTextInput from '.'
-
-const stories = storiesOf('ExpandingTextInput', module)
-
-stories.add('basic', () => {
-  return (
-    <ExpandingTextInput
-      value={text('value', 'value')}
-      onChange={action('onChange')}
-    />
-  )
+describe('serialize', () => {
+  it('prevents negative non-positive distance', () => {
+    expect(serialize('value', -5)).to.deep.equal({
+      value: 'value',
+      distance: '1',
+    })
+  })
 })

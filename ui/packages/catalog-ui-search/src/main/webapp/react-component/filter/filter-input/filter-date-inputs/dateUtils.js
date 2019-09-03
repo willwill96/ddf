@@ -12,19 +12,18 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import React from 'react'
+import user from '../../../../component/singletons/user-instance'
 
-import { storiesOf, action, text } from '../../storybook'
+export const getTimeZone = () => {
+  return user
+    .get('user')
+    .get('preferences')
+    .get('timeZone')
+}
 
-import ExpandingTextInput from '.'
-
-const stories = storiesOf('ExpandingTextInput', module)
-
-stories.add('basic', () => {
-  return (
-    <ExpandingTextInput
-      value={text('value', 'value')}
-      onChange={action('onChange')}
-    />
-  )
-})
+export const getDateFormat = () => {
+  return user
+    .get('user')
+    .get('preferences')
+    .get('dateTimeFormat')['datetimefmt']
+}

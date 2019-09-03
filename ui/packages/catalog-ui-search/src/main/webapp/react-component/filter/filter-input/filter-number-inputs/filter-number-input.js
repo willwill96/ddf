@@ -12,19 +12,25 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import styled from 'styled-components'
+import TextField from '../../../text-field'
 
-import { storiesOf, action, text } from '../../storybook'
+const Input = styled(TextField)`
+  width: ${({ theme }) => `calc(8*${theme.mediumSpacing})`};
+`
 
-import ExpandingTextInput from '.'
+const NumberInput = props => {
+  const [value, setValue] = useState(parseInt(props.value) || '')
 
-const stories = storiesOf('ExpandingTextInput', module)
-
-stories.add('basic', () => {
-  return (
-    <ExpandingTextInput
-      value={text('value', 'value')}
-      onChange={action('onChange')}
-    />
+  useEffect(
+    () => {
+      props.onChange(value)
+    },
+    [value]
   )
-})
+
+  return <Input type="number" value={value} onChange={setValue} />
+}
+
+export default NumberInput
