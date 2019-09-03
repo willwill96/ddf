@@ -25,6 +25,15 @@ import FilterComparator from './filter-comparator'
 import FilterInput from './filter-input'
 import { getAttributeType } from './filterHelper'
 
+const Root = styled.div`
+  width: auto;
+  height: 100%;
+  display: block;
+  white-space: nowrap;
+  margin: ${({ theme }) => theme.minimumSpacing};
+  padding: ${({ theme }) => theme.minimumSpacing};
+`
+
 const FilterRearrange = styled.div`
   ${GrabCursor};
   display: inline-block;
@@ -74,7 +83,7 @@ class Filter extends React.Component {
 
   render() {
     return (
-      <React.Fragment>
+      <Root>
         <FilterRearrange className="filter-rearrange">
           <span className="cf cf-sort-grabber" />
         </FilterRearrange>
@@ -113,7 +122,7 @@ class Filter extends React.Component {
           metacardDefinitions={metacardDefinitions}
           options={this.props}
         />
-      </React.Fragment>
+      </Root>
     )
   }
 

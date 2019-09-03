@@ -29,7 +29,7 @@ const Label = styled.div`
 `
 
 const NumberInput = styled(TextField)`
-  width: ${({ theme }) => `calc(8*${theme.mediumSpacing})`};
+  width: ${({ theme }) => `calc(4*${theme.mediumSpacing})`};
 `
 const serialize = (lower, upper) => ({ lower, upper })
 

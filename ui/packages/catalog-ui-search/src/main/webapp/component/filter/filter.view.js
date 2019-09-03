@@ -14,7 +14,6 @@
  **/
 
 const Marionette = require('marionette')
-const CustomElements = require('../../js/CustomElements.js')
 import * as React from 'react'
 import Filter from '../../react-component/filter'
 
@@ -34,7 +33,6 @@ module.exports = Marionette.LayoutView.extend({
       />
     )
   },
-  tagName: CustomElements.register('filter'),
   attributes() {
     return { 'data-id': this.model.cid }
   },
