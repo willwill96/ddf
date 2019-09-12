@@ -21,7 +21,6 @@ const BaseRoot = styled.div`
   display: inline-block;
   vertical-align: middle;
   line-height: ${({ theme }) => theme.minimumButtonSize};
-  min-width: ${({ theme }) => `calc(19*${theme.minimumFontSize})`};
   margin: auto;
 `
 const LocationRoot = styled(BaseRoot)`

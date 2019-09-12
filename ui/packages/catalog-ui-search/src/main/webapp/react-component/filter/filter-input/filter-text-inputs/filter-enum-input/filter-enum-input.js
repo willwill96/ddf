@@ -15,25 +15,29 @@
 import React, { useState, useEffect } from 'react'
 import EnumInput from '../../../../inputs/enum-input'
 import { deserializeValue } from '../textFilterHelper'
+import styled from 'styled-components'
+
+const Root = styled.div`
+  min-width: ${({ theme }) => `calc(19*${theme.minimumFontSize})`};
+`
 
 const FilterEnumInput = props => {
   const [value, setValue] = useState(deserializeValue(props.value))
 
-  useEffect(
-    () => {
-      props.onChange(value)
-    },
-    [value]
-  )
+  useEffect(() => {
+    props.onChange(value)
+  }, [value])
 
   return (
-    <EnumInput
-      allowCustom
-      matchCase={props.matchCase}
-      suggestions={props.suggestions}
-      onChange={setValue}
-      value={value}
-    />
+    <Root>
+      <EnumInput
+        allowCustom
+        matchCase={props.matchCase}
+        suggestions={props.suggestions}
+        onChange={setValue}
+        value={value}
+      />
+    </Root>
   )
 }
 
