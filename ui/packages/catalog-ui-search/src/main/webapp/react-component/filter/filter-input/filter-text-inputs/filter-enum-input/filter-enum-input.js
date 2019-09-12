@@ -24,9 +24,12 @@ const Root = styled.div`
 const FilterEnumInput = props => {
   const [value, setValue] = useState(deserializeValue(props.value))
 
-  useEffect(() => {
-    props.onChange(value)
-  }, [value])
+  useEffect(
+    () => {
+      props.onChange(value)
+    },
+    [value]
+  )
 
   return (
     <Root>

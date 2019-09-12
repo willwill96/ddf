@@ -68,5 +68,5 @@ export const determineInput = (
     props.matchCase = ['MATCHCASE', '='].includes(comparator)
     return <EnumInput {...props} />
   }
-  return <TextInput {...props} /> 
+  return <TextInput {...props} />
 }

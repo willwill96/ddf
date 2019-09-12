@@ -40,9 +40,12 @@ const Ruler = styled.div`
 const TextInput = ({ onChange, placeholder, value }) => {
   const ref = useRef(null)
   const [width, setWidth] = useState(0)
-  useEffect(() => {
-    setWidth(ref.current.offsetWidth)
-  }, [value])
+  useEffect(
+    () => {
+      setWidth(ref.current.offsetWidth)
+    },
+    [value]
+  )
 
   return (
     <Root width={width}>

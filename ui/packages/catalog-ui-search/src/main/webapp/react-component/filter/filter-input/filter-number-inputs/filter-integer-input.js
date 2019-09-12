@@ -34,9 +34,12 @@ const getNumber = value => {
 const IntegerInput = props => {
   const [value, setValue] = useState(getNumber(props.value))
 
-  useEffect(() => {
-    props.onChange(getNumber(value))
-  }, [value])
+  useEffect(
+    () => {
+      props.onChange(getNumber(value))
+    },
+    [value]
+  )
 
   return (
     <Input
