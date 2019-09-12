@@ -35,3 +35,8 @@ export const getFilteredAttributeList = includedAttributes => {
 export const getAttributeType = attribute => {
   return metacardDefinitions.metacardTypes[attribute].type
 }
+
+export const isIntegerType = attribute => {
+  const type = getAttributeType(attribute)
+  return type === 'INTEGER' || type === 'SHORT' || type === 'LONG'
+}

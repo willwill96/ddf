@@ -19,11 +19,12 @@ import Filter from '../../react-component/filter'
 
 module.exports = Marionette.LayoutView.extend({
   template() {
+    const value = this.model.get('value')
     return (
       <Filter
         attribute={this.model.get('type')}
         comparator={this.model.get('comparator')}
-        value={this.model.get('value')}
+        value={value ? value[0] : undefined}
         model={this.model}
         isValid={this.model.get('isValid')}
         {...this.options}

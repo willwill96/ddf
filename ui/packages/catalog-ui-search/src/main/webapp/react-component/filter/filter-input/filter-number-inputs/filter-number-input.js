@@ -12,25 +12,14 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import styled from 'styled-components'
-import TextField from '../../../text-field'
+import { NumberInput } from './numberFilterHelper'
 
-const Input = styled(TextField)`
+const Input = styled(NumberInput)`
   width: ${({ theme }) => `calc(8*${theme.mediumSpacing})`};
 `
 
-const NumberInput = props => {
-  const [value, setValue] = useState(parseInt(props.value) || '')
+const FilterNumberInput = props => <Input {...props} />
 
-  useEffect(
-    () => {
-      props.onChange(value)
-    },
-    [value]
-  )
-
-  return <Input type="number" value={value} onChange={setValue} />
-}
-
-export default NumberInput
+export default FilterNumberInput

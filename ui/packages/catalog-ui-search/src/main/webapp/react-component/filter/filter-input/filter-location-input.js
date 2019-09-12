@@ -16,9 +16,6 @@ import React from 'react'
 import withListenTo from '../../backbone-container'
 const LocationView = require('../../location/index.js')
 const LocationOldModel = require('../../../component/location-old/location-old')
-const {
-  Direction,
-} = require('../../../component/location-new/utils/dms-utils.js')
 const ShapeUtils = require('../../../js/ShapeUtils.js')
 const CQLUtils = require('../../../js/CQLUtils.js')
 const wreqr = require('../../../js/wreqr.js')
@@ -26,9 +23,15 @@ const store = require('../../../js/store.js')
 const wkx = require('wkx')
 import { deserialize } from '../../../component/location-old/location-serialization'
 
-const filterToLocationOldModel = filter => {
-  if (filter === '') return filter
+const typesToDisplays = {
+  BBOX: 'bboxdisplay',
+  MULTIPOLYGON: 'polydisplay',
+  POLYGON: 'polydisplay',
+  POINTRADIUS: 'circledisplay',
+  LINE: 'linedisplay',
+}
 
+const filterToLocationOldModel = filter => {
   if (typeof filter.geojson === 'object') {
     return deserialize(filter.geojson)
   }
@@ -50,47 +53,6 @@ const filterToLocationOldModel = filter => {
   }
 }
 
-const clearedLocation = {
-  north: undefined,
-  east: undefined,
-  west: undefined,
-  south: undefined,
-  dmsNorth: '',
-  dmsSouth: '',
-  dmsEast: '',
-  dmsWest: '',
-  dmsNorthDirection: Direction.North,
-  dmsSouthDirection: Direction.North,
-  dmsEastDirection: Direction.East,
-  dmsWestDirection: Direction.East,
-  lat: undefined,
-  lon: undefined,
-  dmsLat: '',
-  dmsLon: '',
-  dmsLatDirection: Direction.North,
-  dmsLonDirection: Direction.East,
-  radius: 1,
-  bbox: undefined,
-  polygon: undefined,
-  hasKeyword: false,
-  usng: undefined,
-  usngbb: undefined,
-  utmUpsEasting: undefined,
-  utmUpsNorthing: undefined,
-  utmUpsZone: 1,
-  utmUpsHemisphere: 'Northern',
-  utmUpsUpperLeftEasting: undefined,
-  utmUpsUpperLeftNorthing: undefined,
-  utmUpsUpperLeftZone: 1,
-  utmUpsUpperLeftHemisphere: 'Northern',
-  utmUpsLowerRightEasting: undefined,
-  utmUpsLowerRightNorthing: undefined,
-  utmUpsLowerRightZone: 1,
-  utmUpsLowerRightHemisphere: 'Northern',
-  line: undefined,
-  lineWidth: 1,
-}
-
 const minimumBuffer = 0.000001
 
 class LocationInput extends React.Component {
@@ -100,6 +62,7 @@ class LocationInput extends React.Component {
     this.locationModel = new LocationOldModel()
     this.state = this.locationModel.toJSON()
     this.deserialize()
+    this.onChange()
   }
   setModelState() {
     this.setState(this.locationModel.toJSON())
@@ -135,8 +98,8 @@ class LocationInput extends React.Component {
     }
   }
   deserialize = () => {
-    const filter = this.props.value ? this.props.value : null
-    if (filter === null || filter.value == undefined) {
+    const filter = this.props.value
+    if (!filter) {
       return
     }
 
@@ -157,23 +120,16 @@ class LocationInput extends React.Component {
         wreqr.vent.trigger('search:polydisplay', this.locationModel)
         break
       // these cases are for when the model matches the location model
-      case 'BBOX':
-        wreqr.vent.trigger('search:bboxdisplay', this.locationModel)
-        break
-      case 'MULTIPOLYGON':
-      case 'POLYGON':
-        wreqr.vent.trigger('search:polydisplay', this.locationModel)
-        break
-      case 'POINTRADIUS':
-        wreqr.vent.trigger('search:circledisplay', this.locationModel)
-        break
-      case 'LINE':
-        wreqr.vent.trigger('search:linedisplay', this.locationModel)
+      default:
+        wreqr.vent.trigger(
+          `search:${typesToDisplays[filter.type]}`,
+          this.locationModel
+        )
         break
     }
   }
   clearLocation() {
-    this.locationModel.set(clearedLocation)
+    this.locationModel.set(new LocationOldModel().toJSON())
     wreqr.vent.trigger('search:drawend', this.locationModel)
     this.setState(this.locationModel.toJSON())
   }
@@ -209,9 +165,6 @@ class LocationInput extends React.Component {
       lineWidth: Math.max(modelJSON.lineWidth, minimumBuffer),
       radius: Math.max(modelJSON.radius, minimumBuffer),
     })
-  }
-  onDestroy() {
-    wreqr.vent.trigger('search:drawend', this.model)
   }
   onChange = () => {
     const value = this.getCurrentValue()

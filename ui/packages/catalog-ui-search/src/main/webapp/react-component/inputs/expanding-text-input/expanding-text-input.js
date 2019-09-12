@@ -37,24 +37,17 @@ const Ruler = styled.div`
   font-size: ${({ theme }) => theme.mediumFontSize};
 `
 
-const TextInput = props => {
+const TextInput = ({ onChange, placeholder, value }) => {
   const ref = useRef(null)
   const [width, setWidth] = useState(0)
-  useEffect(
-    () => {
-      setWidth(ref.current.offsetWidth)
-    },
-    [props.value]
-  )
+  useEffect(() => {
+    setWidth(ref.current.offsetWidth)
+  }, [value])
 
   return (
     <Root width={width}>
-      <Input
-        value={props.value}
-        placeholder={props.placeholder}
-        onChange={props.onChange}
-      />
-      <Ruler ref={ref}>{props.value}</Ruler>
+      <Input value={value} placeholder={placeholder} onChange={onChange} />
+      <Ruler ref={ref}>{value}</Ruler>
     </Root>
   )
 }

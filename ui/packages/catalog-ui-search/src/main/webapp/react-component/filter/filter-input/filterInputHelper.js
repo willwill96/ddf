@@ -24,8 +24,6 @@ import { TextInput, NearInput, EnumInput } from './filter-text-inputs'
 
 export const determineInput = (comparator, type, suggestions) => {
   switch (comparator) {
-    case 'IS EMPTY':
-      return null
     case 'NEAR':
       return NearInput
     case 'BETWEEN':

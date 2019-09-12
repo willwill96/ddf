@@ -71,7 +71,7 @@ class Filter extends React.Component {
       comparator,
       attribute,
       suggestions: props.suggestions || [],
-      value: (props.value && props.value[0]) || '',
+      value: props.value !== undefined ? props.value : '',
       isValid: props.isValid,
     }
     props.onChange(this.state)
@@ -105,7 +105,6 @@ class Filter extends React.Component {
           attribute={this.state.attribute}
           onChange={comparator => this.setState({ comparator }, this.onChange)}
         />
-
         <FilterInput
           suggestions={this.state.suggestions}
           attribute={this.state.attribute}

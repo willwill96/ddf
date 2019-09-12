@@ -14,7 +14,7 @@
  **/
 import React from 'react'
 import styled from 'styled-components'
-import { getAttributeType } from '../filterHelper'
+import { getAttributeType, isIntegerType } from '../filterHelper'
 import { determineInput } from './filterInputHelper'
 
 const BaseRoot = styled.div`
@@ -27,9 +27,7 @@ const BaseRoot = styled.div`
 const LocationRoot = styled(BaseRoot)`
   padding: ${({ theme }) =>
     `${theme.minimumSpacing}
-      1.5rem 0px calc(${theme.minimumSpacing} + 0.75*${
-      theme.minimumButtonSize
-    } + ${theme.minimumButtonSize})`};
+      1.5rem 0px calc(${theme.minimumSpacing} + 0.75*${theme.minimumButtonSize} + ${theme.minimumButtonSize})`};
 
   min-width: ${({ theme }) => `calc(19*${theme.minimumFontSize})`};
   margin: 0px !important;
@@ -52,14 +50,17 @@ const FilterInput = ({
   const Root = Roots[type] || BaseRoot
   const Input = determineInput(comparator, type, suggestions)
   return (
-    <Root>
-      <Input
-        matchCase={['MATCHCASE', '='].includes(comparator)}
-        suggestions={suggestions}
-        value={value}
-        onChange={onChange}
-      />
-    </Root>
+    comparator !== 'IS EMPTY' && (
+      <Root>
+        <Input
+          isInteger={isIntegerType(attribute)}
+          matchCase={['MATCHCASE', '='].includes(comparator)}
+          suggestions={suggestions}
+          value={value}
+          onChange={onChange}
+        />
+      </Root>
+    )
   )
 }
 
