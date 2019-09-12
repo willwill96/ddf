@@ -12,11 +12,16 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import React, { useState, useEffect } from 'react'
-import { deserializeRange, NumberInput } from './numberFilterHelper'
+import React from 'react'
 import styled from 'styled-components'
+import IntegerInput from './filter-integer-input'
+import FloatInput from './filter-float-input'
 
-const Input = styled(NumberInput)`
+const Float = styled(FloatInput)`
+  width: ${({ theme }) => `calc(4*${theme.mediumSpacing})`};
+`
+
+const Integer = styled(IntegerInput)`
   width: ${({ theme }) => `calc(4*${theme.mediumSpacing})`};
 `
 
@@ -33,23 +38,18 @@ const Label = styled.div`
 
 const serialize = (lower, upper) => ({ lower, upper })
 
-const FilterRangeInput = props => {
-  const [value, setValue] = useState(deserializeRange(props.value))
-  useEffect(() => {
-    props.onChange(value)
-  }, [value])
-
+const FilterRangeInput = ({ isInteger, onChange, value }) => {
+  const Input = isInteger ? Integer : Float
   return (
     <Root>
       <Input
-        isInteger={props.isInteger}
         value={value.lower}
-        onChange={lower => setValue(serialize(lower, value.upper))}
+        onChange={lower => onChange(serialize(lower, value.upper))}
       />
       <Label>TO</Label>
       <Input
         value={value.upper}
-        onChange={upper => setValue(serialize(value.lower, upper))}
+        onChange={upper => onChange(serialize(value.lower, upper))}
       />
     </Root>
   )

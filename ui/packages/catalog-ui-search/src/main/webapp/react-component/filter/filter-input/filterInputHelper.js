@@ -12,46 +12,61 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+import React from 'react'
 import BooleanInput from './filter-boolean-input'
 import LocationInput from './filter-location-input'
-import { NumberInput, RangeInput } from './filter-number-inputs'
+import { FloatInput, IntegerInput, RangeInput } from './filter-number-inputs'
 import {
   DateInput,
   RelativeTimeInput,
   BetweenTimeInput,
 } from './filter-date-inputs'
 import { TextInput, NearInput, EnumInput } from './filter-text-inputs'
+import { isIntegerType } from '../filterHelper'
 
-export const determineInput = (comparator, type, suggestions) => {
+export const determineInput = (
+  comparator,
+  type,
+  suggestions,
+  value,
+  onChange
+) => {
+  const props = { value, onChange }
   switch (comparator) {
+    case 'IS EMPTY':
+      return null
     case 'NEAR':
-      return NearInput
+      return <NearInput {...props} />
     case 'BETWEEN':
-      return BetweenTimeInput
+      return <BetweenTimeInput {...props} />
     case 'RELATIVE':
-      return RelativeTimeInput
+      return <RelativeTimeInput {...props} />
     case 'RANGE':
-      return RangeInput
+      props.isInteger = isIntegerType(type)
+      return <RangeInput {...props} />
   }
 
   switch (type) {
     case 'BOOLEAN':
-      return BooleanInput
+      return <BooleanInput {...props} />
     case 'DATE':
-      return DateInput
+      return <DateInput {...props} />
     case 'LOCATION':
     case 'GEOMETRY':
-      return LocationInput
-    case 'LONG':
+      return <LocationInput {...props} />
     case 'DOUBLE':
     case 'FLOAT':
+      return <FloatInput {...props} />
     case 'INTEGER':
     case 'SHORT':
-      return NumberInput
+    case 'LONG':
+      return <IntegerInput {...props} />
   }
 
   if (suggestions && suggestions.length > 0) {
-    return EnumInput
+    props.suggestions = suggestions
+    props.matchCase = ['MATCHCASE', '='].includes(comparator)
+    return <EnumInput {...props} />
   }
-  return TextInput
+  return <TextInput {...props} /> 
 }

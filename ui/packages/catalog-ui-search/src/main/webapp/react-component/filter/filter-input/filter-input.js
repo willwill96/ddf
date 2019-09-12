@@ -14,14 +14,14 @@
  **/
 import React from 'react'
 import styled from 'styled-components'
-import { getAttributeType, isIntegerType } from '../filterHelper'
+import { getAttributeType } from '../filterHelper'
 import { determineInput } from './filterInputHelper'
 
 const BaseRoot = styled.div`
   display: inline-block;
   vertical-align: middle;
   line-height: ${({ theme }) => theme.minimumButtonSize};
-  min-width: ${({ theme }) => `calc(13 * ${theme.minimumFontSize})`};
+  min-width: ${({ theme }) => `calc(19*${theme.minimumFontSize})`};
   margin: auto;
 `
 const LocationRoot = styled(BaseRoot)`
@@ -48,19 +48,10 @@ const FilterInput = ({
 }) => {
   const type = getAttributeType(attribute)
   const Root = Roots[type] || BaseRoot
-  const Input = determineInput(comparator, type, suggestions)
   return (
-    comparator !== 'IS EMPTY' && (
-      <Root>
-        <Input
-          isInteger={isIntegerType(attribute)}
-          matchCase={['MATCHCASE', '='].includes(comparator)}
-          suggestions={suggestions}
-          value={value}
-          onChange={onChange}
-        />
-      </Root>
-    )
+    <Root>
+      {determineInput(comparator, type, suggestions, value, onChange)}
+    </Root>
   )
 }
 

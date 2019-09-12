@@ -36,7 +36,6 @@ export const getAttributeType = attribute => {
   return metacardDefinitions.metacardTypes[attribute].type
 }
 
-export const isIntegerType = attribute => {
-  const type = getAttributeType(attribute)
+export const isIntegerType = type => {
   return type === 'INTEGER' || type === 'SHORT' || type === 'LONG'
 }

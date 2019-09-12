@@ -12,14 +12,42 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import TextField from '../../../text-field'
 import styled from 'styled-components'
-import { NumberInput } from './numberFilterHelper'
 
-const Input = styled(NumberInput)`
+const Input = styled(TextField)`
   width: ${({ theme }) => `calc(8*${theme.mediumSpacing})`};
 `
 
-const FilterNumberInput = props => <Input {...props} />
+const intRegex = /^(-?\d*$)|^$/
 
-export default FilterNumberInput
+const isInteger = value => {
+  return value.match(intRegex)
+}
+
+const getNumber = value => {
+  const num = parseInt(value)
+  return isNaN(num) ? '' : num
+}
+
+const IntegerInput = props => {
+  const [value, setValue] = useState(getNumber(props.value))
+
+  useEffect(() => {
+    props.onChange(getNumber(value))
+  }, [value])
+
+  return (
+    <Input
+      value={value}
+      onChange={newVal => {
+        if (isInteger(newVal)) {
+          setValue(newVal)
+        }
+      }}
+      className={props.className}
+    />
+  )
+}
+export default IntegerInput

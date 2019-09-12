@@ -13,5 +13,6 @@
  *
  **/
 
-export { default as NumberInput } from './filter-number-input'
+export { default as IntegerInput } from './filter-integer-input'
+export { default as FloatInput } from './filter-float-input'
 export { default as RangeInput } from './filter-range-input'
