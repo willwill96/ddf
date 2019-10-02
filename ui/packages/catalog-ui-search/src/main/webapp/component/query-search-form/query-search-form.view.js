@@ -79,11 +79,7 @@ class SearchForm extends React.Component {
   }
   render() {
     return (
-      <form
-        target="autocomplete"
-        action="./internal/blank.html"
-        noValidate
-      >
+      <form target="autocomplete" action="./internal/blank.html" noValidate>
         <button
           style={{ paddingLeft: '50px' }}
           onClick={() => {
