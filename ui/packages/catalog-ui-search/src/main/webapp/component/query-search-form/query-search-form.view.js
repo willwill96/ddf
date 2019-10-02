@@ -81,7 +81,7 @@ class SearchForm extends React.Component {
     return (
       <form
         target="autocomplete"
-        action="/search/catalog/blank.html"
+        action="./internal/blank.html"
         noValidate
       >
         <button
