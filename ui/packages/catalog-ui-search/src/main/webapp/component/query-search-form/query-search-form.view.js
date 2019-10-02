@@ -26,7 +26,6 @@ const QuerySettingsView = require('../query-settings/query-settings.view.js')
 const properties = require('../../js/properties.js')
 const CqlUtils = require('../../js/CQLUtils')
 
-import { transformFilter } from '../../component/filter-builder/filter-serialization'
 import query from '../../react-component/utils/query'
 import Filter from '../../react-component/filter'
 
@@ -75,7 +74,7 @@ class SearchForm extends React.Component {
 
     const filters = flatten(props.filter)
     this.state = {
-      filters
+      filters,
     }
   }
   render() {
@@ -107,15 +106,17 @@ class SearchForm extends React.Component {
                 attribute={filter.attribute}
                 comparator={filter.comparator}
                 value={filter.value}
-                onRemove={()=>{
+                onRemove={() => {
                   const filters = this.state.filters.slice()
-                  filters.splice(i,1)
-                  this.setState({filters})
+                  filters.splice(i, 1)
+                  this.setState({ filters })
                 }}
-                onChange={({attribute, comparator, value})=> {
+                onChange={({ attribute, comparator, value }) => {
                   const filters = this.state.filters.slice()
-                  filters[i] = {type:comparator, property: attribute, value}
-                  this.setState({filters}, ()=> this.props.onChange(expand(this.state.filters)))
+                  filters[i] = { type: comparator, property: attribute, value }
+                  this.setState({ filters }, () =>
+                    this.props.onChange(expand(this.state.filters))
+                  )
                 }}
                 editing={true}
                 suggester={suggester}
@@ -192,6 +193,7 @@ module.exports = Marionette.LayoutView.extend({
     this.model.set('filterTree', value)
   },
   focus() {
+    // eslint-disable-next-line no-undef
     const tabbable = _.filter(
       this.$el.find('[tabindex], input, button'),
       element => element.offsetParent !== null

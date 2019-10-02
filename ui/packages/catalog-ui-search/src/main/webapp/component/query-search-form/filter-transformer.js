@@ -1,4 +1,4 @@
-import {comparatorToCQL, transformFilter} from '../filter-builder/filter-serialization'
+import { transformFilter } from '../filter-builder/filter-serialization'
 
 export const flatten = filter => {
   //top level filter
@@ -11,13 +11,12 @@ export const flatten = filter => {
     const filters = filter.filters.reduce((filters, filter) => {
       const { attribute, comparator, value } = getTransformedFilter(filter)
 
-      
       if (filters[attribute] === undefined) {
         filters[attribute] = { comparator, attribute, value: [] }
       }
 
       filters[attribute].value.push(value[0])
-    
+
       return filters
     }, {})
 
@@ -25,7 +24,6 @@ export const flatten = filter => {
   }
 
   return getTransformedFilter(filter)
-
 }
 
 export const expand = filters => {
@@ -53,7 +51,7 @@ export const expand = filters => {
   return newFilters[0]
 }
 
-const getTransformedFilter = (filter) => {
-  const {type: attribute, comparator, value} = transformFilter(filter)
-  return {attribute, comparator, value: value || []}
+const getTransformedFilter = filter => {
+  const { type: attribute, comparator, value } = transformFilter(filter)
+  return { attribute, comparator, value: value || [] }
 }
