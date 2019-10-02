@@ -14,12 +14,6 @@
  **/
 
 import * as React from 'react'
-import {
-  deserialize,
-  serialize,
-  FilterModel,
-  transformFilter,
-} from '../filter-builder/filter-serialization'
 import { expand, flatten } from './filter-transformer'
 
 const Marionette = require('marionette')
@@ -32,9 +26,8 @@ const QuerySettingsView = require('../query-settings/query-settings.view.js')
 const properties = require('../../js/properties.js')
 const CqlUtils = require('../../js/CQLUtils')
 
+import { transformFilter } from '../../component/filter-builder/filter-serialization'
 import query from '../../react-component/utils/query'
-import TokenizedAutocomplete from '../../react-component/presentation/tokenized-autocomplete'
-import { isArray } from 'util'
 import Filter from '../../react-component/filter'
 
 const fetchSuggestions = memoize(async attr => {
@@ -75,44 +68,12 @@ const suggester = async ({ id, type }) => {
 
   return fetchSuggestions(id)
 }
-const AutocompleteWrapper = Marionette.LayoutView.extend({
-  template() {
-    return (
-      <TokenizedAutocomplete
-        onChange={value => this.model.set('value', value)}
-        value={this.model.get('value')}
-        suggestions={['United States', 'Mexico', 'Canada', 'Brazil', 'England']}
-      />
-    )
-  },
-  isValid() {
-    return true
-  },
-})
-
-function comparatorToCQL() {
-  return {
-    BEFORE: 'BEFORE',
-    AFTER: 'AFTER',
-    RELATIVE: '=',
-    BETWEEN: 'DURING',
-    INTERSECTS: 'INTERSECTS',
-    CONTAINS: 'ILIKE',
-    MATCHCASE: 'LIKE',
-    EQUALS: '=',
-    '>': '>',
-    '<': '<',
-    '=': '=',
-    '<=': '<=',
-    '>=': '>=',
-  }
-}
 
 class SearchForm extends React.Component {
   constructor(props) {
     super(props)
 
-    const filters = flatten(props.filter).map(filter=> new FilterModel(transformFilter(filter)))
+    const filters = flatten(props.filter)
     this.state = {
       filters
     }
@@ -127,25 +88,38 @@ class SearchForm extends React.Component {
         <button
           style={{ paddingLeft: '50px' }}
           onClick={() => {
-            const filters = this.state.filters.concat(new FilterModel(transformFilter({
-              type: 'ILIKE',
-              property: 'anyText',
-              value: [''],
-            })))
+            const filters = this.state.filters.concat({
+              comparator: 'CONTAINS',
+              attribute: 'anyText',
+              value: '',
+            })
             this.setState({ filters })
           }}
         >
           Add Filter
         </button>
         <div className="editor-properties">
-          {this.state.filters.map((model, i) => {
+          {this.state.filters.map((filter, i) => {
             return (
-                <div key={model.cid} className="filter">
               <Filter
-                model={model}
+                allowMultivalued
+                key={`${i}-${this.state.filters.length}`}
+                attribute={filter.attribute}
+                comparator={filter.comparator}
+                value={filter.value}
+                onRemove={()=>{
+                  const filters = this.state.filters.slice()
+                  filters.splice(i,1)
+                  this.setState({filters})
+                }}
+                onChange={({attribute, comparator, value})=> {
+                  const filters = this.state.filters.slice()
+                  filters[i] = {type:comparator, property: attribute, value}
+                  this.setState({filters}, ()=> this.props.onChange(expand(this.state.filters)))
+                }}
                 editing={true}
+                suggester={suggester}
               />
-              </div>
             )
           })}
 

@@ -27,7 +27,7 @@ const FilterBuilderModel = Backbone.Model.extend({
   type: 'filter-builder',
 })
 
-export const FilterModel = Backbone.Model.extend({
+const FilterModel = Backbone.Model.extend({
   defaults() {
     return {
       value: [''],
@@ -39,7 +39,7 @@ export const FilterModel = Backbone.Model.extend({
   type: 'filter',
 })
 
-const comparatorToCQL = {
+export const comparatorToCQL = {
   BEFORE: 'BEFORE',
   AFTER: 'AFTER',
   RELATIVE: '=',

@@ -85,7 +85,6 @@ const DropdownWrapper = styled.div`
 
 class TokenizedAutoComplete extends React.Component<Props, State> {
   inputRef = React.createRef<HTMLInputElement>()
-  dropdownRef = React.createRef<HTMLDivElement>()
   rootRef = React.createRef<HTMLDivElement>()
 
   constructor(props: Props) {
@@ -130,7 +129,7 @@ class TokenizedAutoComplete extends React.Component<Props, State> {
           </InputWrapper>
         </InputArea>
         {this.areSuggestions() && this.state.inputFocused ? (
-          <DropdownWrapper ref={this.dropdownRef as any}>
+          <DropdownWrapper>
             <Menu onChange={this.onDropdownChange}>
               {this.getFilteredSuggestions().map(option => (
                 <MenuItem key={option} value={option}>
