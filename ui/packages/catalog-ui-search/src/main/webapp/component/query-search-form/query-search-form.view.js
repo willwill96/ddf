@@ -28,6 +28,7 @@ const CqlUtils = require('../../js/CQLUtils')
 
 import query from '../../react-component/utils/query'
 import Filter from '../../react-component/filter'
+import { transformFilter } from '../filter-builder/filter-serialization'
 
 const fetchSuggestions = memoize(async attr => {
   const json = await query({
@@ -72,7 +73,7 @@ class SearchForm extends React.Component {
   constructor(props) {
     super(props)
 
-    const filters = flatten(props.filter)
+    const filters = flatten(props.filter, transformFilter)
     this.state = {
       filters,
     }
@@ -86,7 +87,7 @@ class SearchForm extends React.Component {
             const filters = this.state.filters.concat({
               comparator: 'CONTAINS',
               attribute: 'anyText',
-              value: '',
+              value: [],
             })
             this.setState({ filters })
           }}

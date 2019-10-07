@@ -1,15 +1,13 @@
-import { transformFilter } from '../filter-builder/filter-serialization'
-
-export const flatten = filter => {
+export const flatten = (filter, transformFilter) => {
   //top level filter
   if (filter.type === 'AND') {
-    return filter.filters.map(flatten).reduce((a, b) => a.concat(b), [])
+    return filter.filters.map(filter => flatten(filter, transformFilter)).reduce((a, b) => a.concat(b), [])
   }
 
   //multivalued filter
   if (filter.type === 'OR') {
     const filters = filter.filters.reduce((filters, filter) => {
-      const { attribute, comparator, value } = getTransformedFilter(filter)
+      const { type: attribute, comparator, value } = transformFilter(filter)
 
       if (filters[attribute] === undefined) {
         filters[attribute] = { comparator, attribute, value: [] }
@@ -22,20 +20,26 @@ export const flatten = filter => {
 
     return Object.keys(filters).map(attribute => filters[attribute])
   }
-
-  return getTransformedFilter(filter)
+  const { type:attribute ,comparator, value } = transformFilter(filter)
+  return [{attribute, comparator, value: value[0]}]
 }
 
 export const expand = filters => {
   const newFilters = filters.map(filter => {
     if (Array.isArray(filter.value)) {
+      if (filter.value.length === 0) {
+        return {attribute: filter.attribute, comparator: filter.comparator, value: ['']}
+      } else if (filter.value.length === 1) {
+        return {attribute: filter.attribute, comparator: filter.comparator, value: filter.value}
+      }
+
       return {
         type: 'OR',
         filters: filter.value.map(value => {
           return {
-            property: filter.property,
-            type: filter.type,
-            value,
+            attribute: filter.attribute,
+            comparator: filter.comparator,
+            value: [value],
           }
         }),
       }
@@ -49,9 +53,4 @@ export const expand = filters => {
     }
   }
   return newFilters[0]
-}
-
-const getTransformedFilter = filter => {
-  const { type: attribute, comparator, value } = transformFilter(filter)
-  return { attribute, comparator, value: value || [] }
 }
