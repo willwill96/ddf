@@ -1,7 +1,9 @@
 export const flatten = (filter, transformFilter) => {
   //top level filter
   if (filter.type === 'AND') {
-    return filter.filters.map(filter => flatten(filter, transformFilter)).reduce((a, b) => a.concat(b), [])
+    return filter.filters
+      .map(filter => flatten(filter, transformFilter))
+      .reduce((a, b) => a.concat(b), [])
   }
 
   //multivalued filter
@@ -20,17 +22,25 @@ export const flatten = (filter, transformFilter) => {
 
     return Object.keys(filters).map(attribute => filters[attribute])
   }
-  const { type:attribute ,comparator, value } = transformFilter(filter)
-  return [{attribute, comparator, value: value[0]}]
+  const { type: attribute, comparator, value } = transformFilter(filter)
+  return [{ attribute, comparator, value: value[0] }]
 }
 
 export const expand = filters => {
   const newFilters = filters.map(filter => {
     if (Array.isArray(filter.value)) {
       if (filter.value.length === 0) {
-        return {attribute: filter.attribute, comparator: filter.comparator, value: ['']}
+        return {
+          attribute: filter.attribute,
+          comparator: filter.comparator,
+          value: [''],
+        }
       } else if (filter.value.length === 1) {
-        return {attribute: filter.attribute, comparator: filter.comparator, value: filter.value}
+        return {
+          attribute: filter.attribute,
+          comparator: filter.comparator,
+          value: filter.value,
+        }
       }
 
       return {
@@ -46,11 +56,8 @@ export const expand = filters => {
     }
     return filter
   })
-  if (newFilters.length > 1) {
-    return {
-      type: 'AND',
-      filters: newFilters,
-    }
+  return {
+    type: 'AND',
+    filters: newFilters,
   }
-  return newFilters[0]
 }
