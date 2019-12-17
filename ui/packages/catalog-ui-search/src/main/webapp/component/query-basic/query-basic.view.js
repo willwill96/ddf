@@ -25,11 +25,12 @@ const Property = require('../property/property.js')
 const properties = require('../../js/properties.js')
 const cql = require('../../js/cql.js')
 const metacardDefinitions = require('../singletons/metacard-definitions.js')
-const sources = require('../singletons/sources-instance.js')
 const CQLUtils = require('../../js/CQLUtils.js')
 const QuerySettingsView = require('../query-settings/query-settings.view.js')
 const QueryTimeView = require('../query-time/query-time.view.js')
 import { getFilterErrors } from '../../react-component/utils/validation'
+
+import fetch from '../../react-component/utils/fetch'
 
 function isNested(filter) {
   let nested = false
@@ -43,6 +44,33 @@ function getMatchTypeAttribute() {
   return metacardDefinitions.metacardTypes[properties.basicSearchMatchType]
     ? properties.basicSearchMatchType
     : 'datatype'
+}
+
+async function getMatchTypeEnums() {
+  const attr = getMatchTypeAttribute()
+  const query = {
+    src: 'GSR',
+    count: 0,
+    cql: "anyText ILIKE '*'",
+    facets: [attr],
+  }
+
+  const res = await fetch('./internal/cql', {
+    method: 'POST',
+    body: JSON.stringify(query),
+  })
+
+  if (!res.ok) {
+    throw new Error(res.statusText)
+  }
+
+  const json = await res.json()
+  const facets = json.facets[attr] || []
+  return facets.sort((a, b) => b.count - a.count).map(facet => ({
+    label: facet.value,
+    value: facet.value,
+    class: 'icon ' + IconHelper.getClassByName(facet.value),
+  }))
 }
 
 function isTypeLimiter(filter) {
@@ -246,43 +274,24 @@ module.exports = Marionette.LayoutView.extend({
         this.filter['metadata-content-type'].map(subfilter => subfilter.value)
       )
     }
-    this.basicTypeSpecific.show(
-      new PropertyView({
-        model: new Property({
-          enumFiltering: true,
-          showValidationIssues: false,
-          enumMulti: true,
-          enum: sources.toJSON().reduce(
-            (enumArray, source) => {
-              source.contentTypes.forEach(contentType => {
-                if (
-                  contentType.value &&
-                  enumArray.filter(option => option.value === contentType.value)
-                    .length === 0
-                ) {
-                  enumArray.push({
-                    label: contentType.name,
-                    value: contentType.value,
-                    class:
-                      'icon ' + IconHelper.getClassByName(contentType.value),
-                  })
-                }
-              })
-              return enumArray
-            },
-            metacardDefinitions.enums.datatype
-              ? metacardDefinitions.enums.datatype.map(value => ({
-                  label: value,
-                  value,
-                  class: 'icon ' + IconHelper.getClassByName(value),
-                }))
-              : []
-          ),
-          value: [currentValue],
-          id: 'Types',
-        }),
+
+    getMatchTypeEnums()
+      .then(enums => {
+        console.log('Enums: ' + enums)
+        this.basicTypeSpecific.show(
+          new PropertyView({
+            model: new Property({
+              enumFiltering: true,
+              showValidationIssues: false,
+              enumMulti: true,
+              enum: enums,
+              value: [currentValue],
+              id: 'Types',
+            }),
+          })
+        )
       })
-    )
+      .catch(error => console.log(error))
   },
   setupType() {
     let currentValue = 'any'
