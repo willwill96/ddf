@@ -536,6 +536,11 @@
                 <artifactId>workspace-query-separation</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>ddf.catalog.migrate</groupId>
+                <artifactId>query-template-normalization</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <modules>
