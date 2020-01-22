@@ -24,15 +24,10 @@
           class="org.codice.ddf.security.common.Security"
           factory-method="getInstance">
     </bean>
-    <bean id="filterWriter"
-          class="org.codice.ddf.catalog.ui.forms.filter.FilterWriter">
-        <argument value="true"/>
-    </bean>
 
     <bean id="queryTemplateNormalization" class="ddf.catalog.migrate.migration.query.template.normalization.QueryTemplateNormalization">
         <argument ref="catalogFramework"/>
         <argument ref="filterBuilder"/>
-        <argument ref="filterWriter" />
         <argument ref="attributeRegistry"/>
         <argument ref="security"/>
     </bean>

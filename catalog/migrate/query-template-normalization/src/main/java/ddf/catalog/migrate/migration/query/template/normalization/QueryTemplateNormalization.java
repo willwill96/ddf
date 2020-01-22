@@ -34,20 +34,20 @@ import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.util.impl.ResultIterable;
 import ddf.security.Subject;
 import java.io.ByteArrayInputStream;
-import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
 import net.opengis.filter.v_2_0.FilterType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.catalog.ui.forms.api.FilterNode;
 import org.codice.ddf.catalog.ui.forms.builder.JsonModelBuilder;
+import org.codice.ddf.catalog.ui.forms.filter.FilterProcessingException;
 import org.codice.ddf.catalog.ui.forms.filter.FilterReader;
-import org.codice.ddf.catalog.ui.forms.filter.FilterWriter;
 import org.codice.ddf.catalog.ui.forms.filter.TransformVisitor;
 import org.codice.ddf.catalog.ui.forms.filter.VisitableXmlElementImpl;
 import org.codice.ddf.security.common.Security;
@@ -71,8 +71,6 @@ public class QueryTemplateNormalization implements DataMigratable {
 
   private final AttributeRegistry registry;
 
-  private final FilterWriter writer;
-
   private Security security;
 
   private static final String QUERY_TEMPLATE_TAG = "query-template";
@@ -84,12 +82,10 @@ public class QueryTemplateNormalization implements DataMigratable {
   public QueryTemplateNormalization(
       CatalogFramework catalogFramework,
       FilterBuilder filterBuilder,
-      FilterWriter writer,
       AttributeRegistry registry,
       Security security) {
     this.catalogFramework = catalogFramework;
     this.filterBuilder = filterBuilder;
-    this.writer = writer;
     this.registry = registry;
 
     this.security = security;
@@ -150,14 +146,14 @@ public class QueryTemplateNormalization implements DataMigratable {
       return null;
     }
 
-    String convertedFilterTemplate = this.convertFilterTree(uiFilterTemplate);
-//    metacard.setAttribute(new AttributeImpl(QUERY_TEMPLATE_FILTER, (Serializable) null));
+    String convertedFilterTemplate = this.convertFilterTree(uiFilterTemplate, metacard.getId());
+    //  metacard.setAttribute(new AttributeImpl(QUERY_TEMPLATE_FILTER, (Serializable) null));
     metacard.setAttribute(new AttributeImpl(QUERY_FILTER, convertedFilterTemplate));
 
     return metacard;
   }
 
-  private String convertFilterTree(String filterTemplate) {
+  private String convertFilterTree(String filterTemplate, String metacardId) {
     TransformVisitor<FilterNode> visitor = new TransformVisitor<>(new JsonModelBuilder(registry));
     try {
       FilterReader reader = new FilterReader();
@@ -166,8 +162,20 @@ public class QueryTemplateNormalization implements DataMigratable {
               new ByteArrayInputStream(filterTemplate.getBytes(StandardCharsets.UTF_8)));
       VisitableXmlElementImpl.create(root).accept(visitor);
       return GSON.toJson(visitor.getResult());
-    } catch (Exception e) {
-      LOGGER.debug("Something went wrong");
+    } catch (JAXBException e) {
+      LOGGER.error(
+          "XML parsing failed for query template metacard's filter, with metacard id " + metacardId,
+          e);
+    } catch (FilterProcessingException e) {
+      LOGGER.error(
+          "Could not use filter XML for template - {} [metacard id = {}]",
+          e.getMessage(),
+          metacardId);
+    } catch (UnsupportedOperationException e) {
+      LOGGER.error(
+          "Could not use filter XML because it contains unsupported operations - {} [metacard id = {}]",
+          e.getMessage(),
+          metacardId);
     }
     return null;
   }
